@@ -1,0 +1,44 @@
+{
+  "name": "threejs-csg",
+  "version": "0.0.1",
+  "description": "Constructive Solid Geometry for three.js, ES6 + BufferGeometry",
+  "main": "build/main.js",
+  "modules": "build/main.js",
+  "scripts": {
+    "start": "rollup -c .\\rollup.config.js  -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/looeee/threejs-csg.git"
+  },
+  "keywords": [
+    "csg",
+    "three.js",
+    "buffergeometry",
+    "geometry",
+    "csg",
+    "constructive",
+    "solid",
+    "geometry",
+    "webgl",
+    "graphics"
+  ],
+  "author": "Lewy Blue <lewy@discoverthreejs.com> (https://discoverthreejs.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/looeee/threejs-csg/issues"
+  },
+  "homepage": "https://github.com/looeee/threejs-csg#readme",
+  "dependencies": {
+    "three": "^0.116.1"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^8.0.0",
+    "eslint": "^7.1.0",
+    "eslint-config-airbnb": "^18.1.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.3",
+    "prettier": "^2.0.5",
+    "rollup": "^2.10.9"
+  }
+}
