@@ -1,41 +1,50 @@
-import nodeResolve from "@rollup/plugin-node-resolve";
+import nodeResolve from '@rollup/plugin-node-resolve';
 
-const input = "src/main.js";
-const output = "build/main.js";
-
-const plugins = [
-  nodeResolve({
-    mainFields: ["module"],
-  }),
-];
-
-function createConfig() {
-  return {
+export default [
+  {
     watch: {
-      // chokidar: true,
-      include: "src/**",
+      include: 'src/**',
     },
-    input,
-    plugins,
+    input: 'src/index.js',
+    plugins: [
+      nodeResolve({
+        mainFields: ['module'],
+      }),
+    ],
     treeshake: {
       moduleSideEffects: false,
     },
     output: [
       // {
-      //   file: `${outputDir}/${app}.js`,
-      //   format: 'iife',
-      //   sourcemap: true,
+      //   format: 'umd',
       //   name: 'CSG',
+      //   noConflict: true,
+      //   file: 'build/csg.js',
+      //   indent: '\t',
       // },
       {
-        format: "esm",
-        sourcemap: true,
-        file: output,
+        format: 'es',
+        file: 'build/csg.module.js',
+        indent: '\t',
       },
     ],
-  };
-}
-
-export default () => {
-  return createConfig();
-};
+  },
+  // {
+  //   input: "src/index.js",
+  //   plugins: [
+  //   nodeResolve({
+  //     mainFields: ["module"],
+  //   }),
+  //   terser()
+  // ],
+  //   output: [
+  //     {
+  //       format: "umd",
+  //       name: "ECSY",
+  //       noConflict: true,
+  //       file: "build/csg.min.js",
+  //       indent: "\t"
+  //     }
+  //   ]
+  // }
+];
