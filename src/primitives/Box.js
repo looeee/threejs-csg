@@ -10,7 +10,7 @@ class Box {
       options.center || [0, 0, 0],
     );
 
-    const r = !options.radius
+    const radius = !options.radius
       ? [1, 1, 1]
       : options.radius.length
       ? options.radius
@@ -43,6 +43,8 @@ class Box {
           [0, 0, 1],
         ],
       ].map((info) => {
+        console.log('info: ', info);
+
         return new Polygon(
           info[0].map((i) => {
             const position = new Vector3(
@@ -50,7 +52,8 @@ class Box {
               center.y + radius[1] * (2 * !!(i & 2) - 1),
               center.z + radius[2] * (2 * !!(i & 4) - 1),
             );
-            return new Vertex(position, new Vector3(info[1]));
+            const normal = new Vector3().fromArray(info[1]);
+            return new Vertex(position, normal);
           }),
         );
       }),

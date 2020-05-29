@@ -35,9 +35,16 @@ class CuttingPlane extends Plane {
     const types = [];
 
     for (const vertex of polygon.vertices) {
-      const t = this.normal.dot(vertex.position) - this.w;
-      const type =
-        t < -epsilon ? back : t > epsilon ? front : coplanar;
+      const t = this.normal.dot(vertex.position) - this.constant;
+
+      let type;
+      if (t < -epsilon) {
+        type = behind;
+      } else if (t > epsilon) {
+        type = inFront;
+      } else {
+        type = coplanar;
+      }
 
       // smart (or at least, short) way to get the final polygon
       // type by considering the status of each vertex
@@ -45,7 +52,10 @@ class CuttingPlane extends Plane {
 
       types.push(type);
     }
+    // console.log('polygonType: ', polygonType);
+    // console.log('types: ', types);
 
+    // debugger;
     // Put the polygon in the correct list, splitting if necessary.
     switch (polygonType) {
       case coplanar:
@@ -75,15 +85,16 @@ class CuttingPlane extends Plane {
           const vi = polygon.vertices[i];
           const vj = polygon.vertices[j];
 
-          if (ti != inFront) f.push(vi);
-          if (ti != behind) {
+          if (ti != behind) f.push(vi);
+          if (ti != inFront) {
             b.push(ti != behind ? vi.clone() : vi);
           }
 
-          if ((ti | tj) == spanning) {
+          if ((ti | tj) === spanning) {
             const t =
-              (this.w - this.normal.dot(vi.position)) /
+              (this.constant - this.normal.dot(vi.position)) /
               this.normal.dot(vj.position.sub(vi.position));
+
             const v = vi.interpolate(vj, t);
             f.push(v);
             b.push(v.clone());
@@ -96,4 +107,4 @@ class CuttingPlane extends Plane {
   }
 }
 
-export { CuttingPlane as Plane };
+export { CuttingPlane };

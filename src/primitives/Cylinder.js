@@ -6,31 +6,33 @@ import { Vertex } from '../components/Vertex.js';
 
 class Cylinder {
   constructor(options = {}) {
-    var s = new Vector3(options.start || [0, -1, 0]);
-    var e = new Vector3(options.end || [0, 1, 0]);
-    var ray = e.minus(s);
-    var r = options.radius || 1;
-    var slices = options.slices || 16;
-    var axisZ = ray.unit(),
-      isY = Math.abs(axisZ.y) > 0.5;
-    var axisX = new Vector3(isY, !isY, 0).cross(axisZ).unit();
-    var axisY = axisX.cross(axisZ).unit();
-    var start = new Vertex(s, axisZ.negated());
-    var end = new Vertex(e, axisZ.unit());
-    var polygons = [];
+    const s = new Vector3(options.start || [0, -1, 0]);
+    const e = new Vector3(options.end || [0, 1, 0]);
+    const ray = e.sub(s);
+    const r = options.radius || 1;
+    const slices = options.slices || 16;
+    const axisZ = ray.normalize();
+    const isY = Math.abs(axisZ.y) > 0.5;
+    const axisX = new Vector3(isY, !isY, 0).cross(axisZ).normalize();
+    const axisY = axisX.cross(axisZ).normalize();
+    const start = new Vertex(s, axisZ.negate());
+    const end = new Vertex(e, axisZ.normalize());
+    const polygons = [];
     function point(stack, slice, normalBlend) {
-      var angle = slice * Math.PI * 2;
-      var out = axisX
-        .times(Math.cos(angle))
-        .plus(axisY.times(Math.sin(angle)));
-      var pos = s.plus(ray.times(stack)).plus(out.times(r));
-      var normal = out
-        .times(1 - Math.abs(normalBlend))
-        .plus(axisZ.times(normalBlend));
+      const angle = slice * Math.PI * 2;
+      const out = axisX
+        .multiplyScalar(Math.cos(angle))
+        .add(axisY.multiplyScalar(Math.sin(angle)));
+      const pos = s
+        .add(ray.multiplyScalar(stack))
+        .add(out.multiplyScalar(r));
+      const normal = out
+        .multiplyScalar(1 - Math.abs(normalBlend))
+        .add(axisZ.multiplyScalar(normalBlend));
       return new Vertex(pos, normal);
     }
-    for (var i = 0; i < slices; i++) {
-      var t0 = i / slices,
+    for (const i = 0; i < slices; i++) {
+      const t0 = i / slices,
         t1 = (i + 1) / slices;
       polygons.push(
         new Polygon([start, point(0, t0, -1), point(0, t1, -1)]),

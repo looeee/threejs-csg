@@ -1,4 +1,4 @@
-import { Vector2, Vector3 } from 'three';
+import { Shape } from './Shape.js';
 
 // Holds a node in a BSP tree.
 // A BSP tree is built from a collection of polygons by picking a polygon to split along.
@@ -10,20 +10,9 @@ class Node {
     this.plane = null;
     this.front = null;
     this.back = null;
-    this.polygons = [];
+    this.polygons = polygons;
 
     if (polygons) this.build(polygons);
-  }
-
-  fromGeometry(geometry) {
-    if (!geometry instanceof BufferGeometry) {
-      console.error(
-        'This library only works with three.js BufferGeometry',
-      );
-      return;
-    }
-
-    // TODO
   }
 
   clone() {
@@ -36,14 +25,14 @@ class Node {
   }
 
   // Invert the shape
-  invert() {
+  negate() {
     for (const polygon of this.polygons) {
       polygon.negate();
     }
 
     this.plane.negate();
-    if (this.front) this.front.invert();
-    if (this.back) this.back.invert();
+    if (this.front) this.front.negate();
+    if (this.back) this.back.negate();
 
     const temp = this.front;
     this.front = this.back;
@@ -51,13 +40,13 @@ class Node {
   }
 
   // Recursively remove all polygons in polygons that are inside this BSP tree.
-  clipPolygons() {
+  clipPolygons(polygons) {
     if (!this.plane) return polygons.slice();
     const front = [];
-    const back = [];
+    let back = [];
 
     for (const polygon of this.polygons) {
-      this.plane.splitPolygon(polygons[i], front, back, front, back);
+      this.plane.splitPolygon(polygon, front, back, front, back);
     }
 
     if (this.front) front = this.front.clipPolygons(front);
@@ -96,14 +85,19 @@ class Node {
   build(polygons) {
     if (!polygons.length) return;
 
+    // start with the plane taken from an arbitrary polygon
     if (!this.plane) this.plane = polygons[0].plane.clone();
+    // console.log('this.plane: ', this.plane);
 
     const front = [];
     const back = [];
 
+    // console.log(this, this.polygons);
+
     for (const polygon of this.polygons) {
+      // console.log('polygon: ', polygon);
       this.plane.splitPolygon(
-        polygons[i],
+        polygon,
         this.polygons,
         this.polygons,
         front,
@@ -111,13 +105,14 @@ class Node {
       );
     }
 
+    // console.log('front: ', front);
+    // console.log('back: ', back);
+
     if (front.length) {
-      if (!this.front) this.front = new Node();
-      this.front.build(front);
+      // if (!this.front) this.front = new Node(front);
     }
     if (back.length) {
-      if (!this.back) this.back = new Node();
-      this.back.build(back);
+      // if (!this.back) this.back = new Node(back);
     }
   }
 }
