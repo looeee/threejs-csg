@@ -1,4 +1,4 @@
-import { Node } from './components/Node.js';
+import { BSPNode } from './components/BSPNode.js';
 import { Shape } from './components/Shape.js';
 
 // Holds a binary space partition tree representing a 3D solid.
@@ -52,13 +52,51 @@ class CSG {
   // Equivalent to OR (A||B)
   // Can also be expressed as !(!A && !B)
   union(csg) {
-    const a = new Node(this.clone().polygons);
-    const b = new Node(csg.clone().polygons);
+    const a = new BSPNode(this.clone().polygons);
+    const b = new BSPNode(csg.clone().polygons);
+
+    // console.log(
+    //   'a: ',
+    //   a.polygons[0].vertices[0].position.toArray(),
+    //   a.polygons[0].vertices[1].position.toArray(),
+    //   a.polygons[0].vertices[2].position.toArray(),
+    // );
+    // console.log(
+    //   'b: ',
+    //   b.polygons[0].vertices[0].position.toArray(),
+    //   b.polygons[0].vertices[1].position.toArray(),
+    //   b.polygons[0].vertices[2].position.toArray(),
+    // );
+
+    // remove all polygons from a that are inside b
+    // VERIFIED FOR TRIANGLE
     a.clipTo(b);
+    // console.log(
+    //   'a: ',
+    //   a.polygons[0].vertices[0].position.toArray(),
+    //   a.polygons[0].vertices[1].position.toArray(),
+    //   a.polygons[0].vertices[2].position.toArray(),
+    // );
+
+    // remove all polygons from b that are inside a
     b.clipTo(a);
+
+    // invert b
     b.negate();
+
+    // remove all polygons from b that are inside a
     b.clipTo(a);
+    // console.log(
+    //   'b: ',
+    //   b.polygons[0].vertices[0].position.toArray(),
+    //   b.polygons[0].vertices[1].position.toArray(),
+    //   b.polygons[0].vertices[2].position.toArray(),
+    // );
+
+    // // invert b
     b.negate();
+
+    // // recreate the node a using polygons from b
     a.build(b.allPolygons());
     return new CSG().fromPolygons(a.allPolygons());
   }
@@ -67,9 +105,9 @@ class CSG {
   // Neither this solid nor the solid csg are modified.
   // Equivalent to AND NOT (A && !B)
   subtract(csg) {
-    const a = new Node(this.clone().polygons);
+    const a = new BSPNode(this.clone().polygons);
     // console.log('a: ', a);
-    const b = new Node(csg.clone().polygons);
+    const b = new BSPNode(csg.clone().polygons);
     // console.log('b: ', b);
     a.negate();
     a.clipTo(b);
@@ -87,8 +125,10 @@ class CSG {
   // Intersection AKA Common
   // Equivalent to logical AND (A&&B)
   intersect(csg) {
-    const a = new Node(this.clone().polygons);
-    const b = new Node(csg.clone().polygons);
+    const a = new BSPNode(this.clone().polygons);
+    // console.log('a: ', a);
+    const b = new BSPNode(csg.clone().polygons);
+    // console.log('b: ', b);
     a.negate();
     b.clipTo(a);
     b.negate();

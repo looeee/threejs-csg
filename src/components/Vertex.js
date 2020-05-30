@@ -8,7 +8,11 @@ class Vertex {
   }
 
   clone() {
-    return new Vertex(this.position, this.normal, this.uv);
+    return new Vertex(
+      this.position.clone(),
+      this.normal && this.normal.clone(),
+      this.uv && this.uv.clone(),
+    );
   }
 
   // Invert all orientation-specific data (e.g. vertex normal).

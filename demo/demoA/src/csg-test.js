@@ -32,8 +32,8 @@ function testCSG(params) {
   // prettier-ignore
   const triangleUp = createGeo([
     -0.2, -0.2,  0,
-    -0.2, 0.2,  0,
     0.2,  0.2,  0,
+    -0.2, 0.2,  0,
   ] );
 
   // prettier-ignore
@@ -61,7 +61,7 @@ function testCSG(params) {
   const boxBCSG = new CSG().fromGeometry(
     new BoxBufferGeometry(0.3, 0.3, 0.3),
   );
-  // console.log('boxCSG: ', box, boxCSG);
+  console.log('boxCSG: ', box, boxCSG);
   const cylinderCSG = new CSG().fromGeometry(cylinder);
   // console.log('cylinderCSG: ', cylinder, cylinderCSG);
   const sphereCSG = new CSG().fromGeometry(sphere);
@@ -70,31 +70,36 @@ function testCSG(params) {
   // const basic = triangleCSG.subtract(squareCSG);
   // const basic = squareCSG.subtract(triangleCSG);
   const basic = triangleCSG.union(triangleUpCSG);
+  // // console.log('basic: ', basic);
 
-  console.log(
-    'triangle: ',
-    triangleCSG.toGeometry().attributes.position.array,
-  );
-  console.log(
-    'triangleUp: ',
-    triangleUpCSG.toGeometry().attributes.position.array,
-  );
-  console.log(
-    'basic: ',
-    basic.toGeometry().attributes.position.array,
-  );
+  // console.log(
+  //   'triangle: ',
+  //   triangleCSG.toGeometry().attributes.position.array,
+  // );
+  // console.log(
+  //   'triangleUp: ',
+  //   triangleUpCSG.toGeometry().attributes.position.array,
+  // );
+  // console.log(
+  //   'basic: ',
+  //   basic.toGeometry().attributes.position.array,
+  // );
 
+  // const subTest = boxCSG.union(boxBCSG);
   // const subTest = boxCSG.subtract(boxBCSG);
-  // console.log('subTest: ', subTest.toGeometry());
+  // const subTest = boxCSG.subtract(boxBCSG);
+  // console.log('subTest: ', subTest);
 
   return {
     triangle: triangleCSG.toGeometry(),
+    triangleUp: triangleUpCSG.toGeometry(),
     triangleOrig: triangle,
     square: squareCSG.toGeometry(),
     squareOrig: square,
     plane: planeCSG.toGeometry(),
     planeOrig: plane.toNonIndexed(),
     box: boxCSG.toGeometry(),
+    boxB: boxBCSG.toGeometry(),
     boxOrig: box.toNonIndexed(),
     cylinder: cylinderCSG.toGeometry(),
     cylinderOrig: cylinder.toNonIndexed(),

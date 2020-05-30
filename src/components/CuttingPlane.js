@@ -14,12 +14,18 @@ class CuttingPlane extends Plane {
 
   // Split polygon by this plane if needed,
   // then put the polygon or polygon fragments in the appropriate lists.
-  // Coplanar polygons go into either coplanarFront or coplanarBack
+  // Coplanar polygons go into either coplanarFrontPolygons or coplanarBackPolygons
   // depending on their orientation with respect to this plane.
   // Polygons in front or in back of this plane go into either front or back.
   //
   // TODO: can this be simplified knowing that all polygons are triangles?
-  splitPolygon(polygon, coplanarFront, coplanarBack, front, back) {
+  splitPolygon(
+    polygon,
+    coplanarFrontPolygons,
+    coplanarBackPolygons,
+    frontPolygons,
+    backPolygons,
+  ) {
     // First, we will classify the polygon in one of these four classes
     // relative to the plane. If the polygon is spanning the plane
     // it must be split
@@ -34,8 +40,9 @@ class CuttingPlane extends Plane {
     let polygonType = 0;
     const types = [];
 
-    for (const vertex of polygon.vertices) {
-      const t = this.normal.dot(vertex.position) - this.constant;
+    for (let i = 0; i < polygon.vertices.length; i++) {
+      const t =
+        this.normal.dot(polygon.vertices[i].position) - this.constant;
 
       let type;
       if (t < -epsilon) {
@@ -55,21 +62,21 @@ class CuttingPlane extends Plane {
     // console.log('polygonType: ', polygonType);
     // console.log('types: ', types);
 
-    // debugger;
     // Put the polygon in the correct list, splitting if necessary.
+    // debugger;
     switch (polygonType) {
       case coplanar:
         if (this.normal.dot(polygon.plane.normal) > 0) {
-          coplanarFront.push(polygon);
+          coplanarFrontPolygons.push(polygon);
         } else {
-          coplanarBack.push(polygon);
+          coplanarBackPolygons.push(polygon);
         }
         break;
       case inFront:
-        front.push(polygon);
+        frontPolygons.push(polygon);
         break;
       case behind:
-        back.push(polygon);
+        backPolygons.push(polygon);
         break;
       case spanning:
         // TODO: move into separate function and give variables better names
@@ -90,7 +97,7 @@ class CuttingPlane extends Plane {
             b.push(ti != behind ? vi.clone() : vi);
           }
 
-          if ((ti | tj) === spanning) {
+          if ((ti | tj) == spanning) {
             const t =
               (this.constant - this.normal.dot(vi.position)) /
               this.normal.dot(vj.position.sub(vi.position));
@@ -100,8 +107,10 @@ class CuttingPlane extends Plane {
             b.push(v.clone());
           }
         }
-        if (f.length >= 3) front.push(new Polygon(f, polygon.shared));
-        if (b.length >= 3) back.push(new Polygon(b, polygon.shared));
+        if (f.length >= 3)
+          frontPolygons.push(new Polygon(f, polygon.shared));
+        if (b.length >= 3)
+          backPolygons.push(new Polygon(b, polygon.shared));
         break;
     }
   }

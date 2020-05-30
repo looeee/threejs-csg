@@ -36,6 +36,8 @@ function init() {
   triangle.position.set(-1, 1, 0);
   const triangleOrig = new Mesh(geometries.triangleOrig, material);
   triangleOrig.position.set(-0.5, 1, 0);
+  const triangleUp = new Mesh(geometries.triangleUp, material);
+  triangleUp.position.set(-0.5, 1, 0);
 
   const square = new Mesh(geometries.square, material);
   square.position.set(0, 1, 0);
@@ -51,6 +53,8 @@ function init() {
   box.position.set(-1, 0, 0);
   const boxOrig = new Mesh(geometries.boxOrig, material);
   boxOrig.position.set(-0.5, 0, 0);
+  const boxB = new Mesh(geometries.boxB, material);
+  boxB.position.set(-0.5, 0, 0);
 
   const cylinder = new Mesh(geometries.cylinder, material);
   cylinder.position.set(0, 0, 0);
@@ -61,10 +65,6 @@ function init() {
   sphere.position.set(-1, -1, 0);
   const sphereOrig = new Mesh(geometries.sphereOrig, material);
   sphereOrig.position.set(-0.5, -1, 0);
-
-  // const subTest = new Mesh(geometries.subTest, material);
-  // subTest.position.set(1, -1, 0);
-  // console.log('geometries.subTest: ', geometries.subTest);
 
   // tri
   // -0.2, -0.2,  0.2,
@@ -83,19 +83,28 @@ function init() {
   //   geometries.basic.attributes.position.array,
   // );
 
+  // const subTest = new Mesh(geometries.subTest, material);
+  // subTest.position.set(1, -1, 0);
+  // console.log(
+  //   'geometries.subTest: ',
+  //   geometries.subTest.attributes.position,
+  // );
+
   scene.add(
     triangle,
-    triangleOrig,
+    triangleUp,
+    // triangleOrig,
     square,
-    squareOrig,
+    // squareOrig,
     plane,
-    planeOrig,
+    // planeOrig,
     box,
-    boxOrig,
+    // boxOrig,
+    boxB,
     cylinder,
-    cylinderOrig,
+    // cylinderOrig,
     sphere,
-    sphereOrig,
+    // sphereOrig,
     basic,
     // subTest,
   );
