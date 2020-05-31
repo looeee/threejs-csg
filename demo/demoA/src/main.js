@@ -3,6 +3,7 @@ import {
   Color,
   DoubleSide,
   Mesh,
+  MeshBasicMaterial,
   MeshNormalMaterial,
   PerspectiveCamera,
   Scene,
@@ -26,6 +27,11 @@ function init() {
 
   const scene = new Scene();
   scene.background = new Color('skyblue');
+
+  // scene.overrideMaterial = new MeshBasicMaterial({
+  //   color: 'grey',
+  //   side: DoubleSide,
+  // });
 
   const geometries = testCSG();
   // console.log('geometries: ', geometries);
@@ -76,18 +82,11 @@ function init() {
   // 0.2,  -0.2,  0.2,
   // -0.2,  -0.2,  0.2,
 
-  const basic = new Mesh(geometries.basic, material);
-  basic.position.set(1, -1, 0);
+  const test = new Mesh(geometries.test, material);
+  test.position.set(1, -1, 0);
   // console.log(
   //   'geometries.basic: ',
   //   geometries.basic.attributes.position.array,
-  // );
-
-  // const subTest = new Mesh(geometries.subTest, material);
-  // subTest.position.set(1, -1, 0);
-  // console.log(
-  //   'geometries.subTest: ',
-  //   geometries.subTest.attributes.position,
   // );
 
   scene.add(
@@ -105,8 +104,7 @@ function init() {
     // cylinderOrig,
     sphere,
     // sphereOrig,
-    basic,
-    // subTest,
+    test,
   );
 
   const renderer = new WebGLRenderer({ antialias: true });

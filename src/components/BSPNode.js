@@ -7,6 +7,7 @@ import { Shape } from './Shape.js';
 // This is not a leafy BSP tree since there is no distinction between internal and leaf nodes.
 class BSPNode {
   constructor(polygons) {
+    // console.log('new Node', polygons);
     this.plane = null;
     this.frontNode = null;
     this.backNode = null;
@@ -42,9 +43,8 @@ class BSPNode {
   // Recursively remove all polygons in polygons that are inside this BSP tree.
   clipPolygons(polygons) {
     if (!this.plane) return polygons.slice();
-    // console.log('polygons: ', polygons);
 
-    const frontPolygons = [];
+    let frontPolygons = [];
     let backPolygons = [];
 
     for (const polygon of polygons) {
@@ -57,8 +57,9 @@ class BSPNode {
       );
     }
 
-    if (this.frontNode)
+    if (this.frontNode) {
       frontPolygons = this.frontNode.clipPolygons(frontPolygons);
+    }
 
     if (this.backNode) {
       backPolygons = this.backNode.clipPolygons(backPolygons);
@@ -78,7 +79,7 @@ class BSPNode {
 
   // Return a list of all polygons in this BSP tree.
   allPolygons() {
-    const polygons = this.polygons.slice();
+    let polygons = this.polygons.slice();
     if (this.frontNode)
       polygons = polygons.concat(this.frontNode.allPolygons());
     if (this.backNode)
@@ -93,21 +94,16 @@ class BSPNode {
   // (no heuristic is used to pick a good split).
   build(polygons) {
     if (!polygons.length) return;
-    console.log('polygons: ', polygons);
 
     // start with the plane taken from an arbitrary polygon
     if (!this.plane) {
       this.plane = polygons[0].plane.clone();
-      console.log('this.plane: ', this.plane);
     }
 
     const frontPolygons = [];
     const backPolygons = [];
 
-    // console.log('polygons.vertices initial', polygons[0].vertices);
-
     for (const polygon of polygons) {
-      console.log('polygon: ', polygon.plane);
       this.plane.splitPolygon(
         polygon,
         // coplanar polygons are stored in this node
@@ -117,12 +113,6 @@ class BSPNode {
         backPolygons,
       );
     }
-
-    // console.log('polygons final', this.polygons);
-
-    // console.log('front: ', front);
-    // console.log('back: ', back);
-    // console.log('node: ', this);
 
     if (frontPolygons.length) {
       if (!this.frontNode)

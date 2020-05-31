@@ -2,9 +2,10 @@ import {
   BufferAttribute,
   BufferGeometry,
   Vector2,
-  Vector3,
+  // Vector,
 } from 'three';
 
+import { Vector } from './Vector.js';
 import { Vertex } from './Vertex.js';
 import { Polygon } from './Polygon.js';
 
@@ -36,13 +37,13 @@ class Shape {
     // const colors = geometry.attributes.color;
 
     function createVertex(index) {
-      const position = new Vector3(
+      const position = new Vector(
         positions.getX(index),
         positions.getY(index),
         positions.getZ(index),
       );
       const normal = normals
-        ? new Vector3(
+        ? new Vector(
             normals.getX(index),
             normals.getY(index),
             normals.getZ(index),

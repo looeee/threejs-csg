@@ -1,4 +1,4 @@
-import { Vector3 } from 'three';
+import { Vector } from './Vector.js';
 
 import { CSG } from '../CSG.js';
 import { Polygon } from '../components/Polygon.js';
@@ -6,7 +6,7 @@ import { Vertex } from '../components/Vertex.js';
 
 class Box {
   constructor(options = {}) {
-    const center = new Vector3().fromArray(
+    const center = new Vector().fromArray(
       options.center || [0, 0, 0],
     );
 
@@ -47,12 +47,12 @@ class Box {
 
         return new Polygon(
           info[0].map((i) => {
-            const position = new Vector3(
+            const position = new Vector(
               center.x + radius[0] * (2 * !!(i & 1) - 1),
               center.y + radius[1] * (2 * !!(i & 2) - 1),
               center.z + radius[2] * (2 * !!(i & 4) - 1),
             );
-            const normal = new Vector3().fromArray(info[1]);
+            const normal = new Vector().fromArray(info[1]);
             return new Vertex(position, normal);
           }),
         );

@@ -53,50 +53,26 @@ class CSG {
   // Can also be expressed as !(!A && !B)
   union(csg) {
     const a = new BSPNode(this.clone().polygons);
+    console.log('a: ', a);
     const b = new BSPNode(csg.clone().polygons);
-
-    // console.log(
-    //   'a: ',
-    //   a.polygons[0].vertices[0].position.toArray(),
-    //   a.polygons[0].vertices[1].position.toArray(),
-    //   a.polygons[0].vertices[2].position.toArray(),
-    // );
-    // console.log(
-    //   'b: ',
-    //   b.polygons[0].vertices[0].position.toArray(),
-    //   b.polygons[0].vertices[1].position.toArray(),
-    //   b.polygons[0].vertices[2].position.toArray(),
-    // );
+    console.log('b: ', b);
 
     // remove all polygons from a that are inside b
-    // VERIFIED FOR TRIANGLE
+
     a.clipTo(b);
-    // console.log(
-    //   'a: ',
-    //   a.polygons[0].vertices[0].position.toArray(),
-    //   a.polygons[0].vertices[1].position.toArray(),
-    //   a.polygons[0].vertices[2].position.toArray(),
-    // );
 
-    // remove all polygons from b that are inside a
+    // // remove all polygons from b that are inside a
     b.clipTo(a);
-
-    // invert b
-    b.negate();
-
-    // remove all polygons from b that are inside a
-    b.clipTo(a);
-    // console.log(
-    //   'b: ',
-    //   b.polygons[0].vertices[0].position.toArray(),
-    //   b.polygons[0].vertices[1].position.toArray(),
-    //   b.polygons[0].vertices[2].position.toArray(),
-    // );
 
     // // invert b
     b.negate();
 
-    // // recreate the node a using polygons from b
+    // // remove all polygons from b that are inside a
+    b.clipTo(a);
+
+    // // invert b
+    b.negate();
+
     a.build(b.allPolygons());
     return new CSG().fromPolygons(a.allPolygons());
   }

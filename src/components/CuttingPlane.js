@@ -1,16 +1,30 @@
-import { Plane } from 'three';
+// import { Plane } from 'three';
 import { Polygon } from './Polygon.js';
 
-class CuttingPlane extends Plane {
+class CuttingPlane {
+  // class CuttingPlane extends Plane {
   constructor(normal, constant) {
-    super(normal, constant);
+    // super(normal, constant);
+    this.normal = normal;
+    this.constant = constant;
   }
 
   // flip -> negate
+  negate() {
+    this.normal = this.normal.negate();
+    this.constant = -this.constant;
+  }
 
   // fromPoints -> setFromCoplanarPoints
+  fromPoints(a, b, c) {
+    var n = b.sub(a).cross(c.sub(a)).normalize();
+    return new CuttingPlane(n, n.dot(a));
+  }
 
   // clone -> clone
+  clone() {
+    return new CuttingPlane(this.normal.clone(), this.constant);
+  }
 
   // Split polygon by this plane if needed,
   // then put the polygon or polygon fragments in the appropriate lists.
@@ -79,6 +93,7 @@ class CuttingPlane extends Plane {
         backPolygons.push(polygon);
         break;
       case spanning:
+        // console.log('spanning');
         // TODO: move into separate function and give variables better names
         // TODO: this looks like the stanard clipping algorithm as defined here:
         // https://www.geometrictools.com/Documentation/ClipMesh.pdf
@@ -107,10 +122,27 @@ class CuttingPlane extends Plane {
             b.push(v.clone());
           }
         }
-        if (f.length >= 3)
+        if (f.length === 3) {
           frontPolygons.push(new Polygon(f, polygon.shared));
-        if (b.length >= 3)
+        } else if (f.length === 4) {
+          // console.log('f: ', f);
+          // split 4 sided poly
+          frontPolygons.push(
+            new Polygon([f[0], f[1], f[2]], polygon.shared),
+            new Polygon([f[0], f[2], f[3]], polygon.shared),
+          );
+        }
+
+        if (b.length === 3) {
           backPolygons.push(new Polygon(b, polygon.shared));
+        } else if (b.length === 4) {
+          // console.log('b: ', b);
+          // split 4 sided poly
+          frontPolygons.push(
+            new Polygon([b[0], b[1], b[2]], polygon.shared),
+            new Polygon([b[0], b[2], b[3]], polygon.shared),
+          );
+        }
         break;
     }
   }
