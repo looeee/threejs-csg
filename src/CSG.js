@@ -58,7 +58,6 @@ class CSG {
     console.log('b: ', b);
 
     // remove all polygons from a that are inside b
-
     a.clipTo(b);
 
     // // remove all polygons from b that are inside a

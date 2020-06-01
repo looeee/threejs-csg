@@ -1,6 +1,8 @@
 // import { Plane } from 'three';
 import { Polygon } from './Polygon.js';
 
+function clipTriangleAgainstPlane(polygon, plane) {}
+
 class CuttingPlane {
   // class CuttingPlane extends Plane {
   constructor(normal, constant) {
@@ -105,7 +107,9 @@ class CuttingPlane {
           const ti = types[i];
           const tj = types[j];
           const vi = polygon.vertices[i];
+          // console.log('vi: ', vi);
           const vj = polygon.vertices[j];
+          // console.log(' vj: ', vj);
 
           if (ti != behind) f.push(vi);
           if (ti != inFront) {
@@ -138,7 +142,7 @@ class CuttingPlane {
         } else if (b.length === 4) {
           // console.log('b: ', b);
           // split 4 sided poly
-          frontPolygons.push(
+          backPolygons.push(
             new Polygon([b[0], b[1], b[2]], polygon.shared),
             new Polygon([b[0], b[2], b[3]], polygon.shared),
           );
