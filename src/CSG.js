@@ -1,6 +1,8 @@
 import {
   BufferAttribute,
   BufferGeometry,
+  Mesh,
+  MeshNormalMaterial,
   Vector2,
   Vector3,
 } from 'three';
@@ -56,9 +58,10 @@ import { Vertex } from './components/Vertex.js';
 class CSG {
   constructor() {
     this.polygons = [];
+    this.material = null;
   }
 
-  static fromGeometry(geometry) {
+  setFromGeometry(geometry) {
     if (!geometry instanceof BufferGeometry) {
       console.error(
         'This library only works with three.js BufferGeometry',
@@ -69,8 +72,6 @@ class CSG {
     if (geometry.index !== null) {
       geometry = geometry.toNonIndexed();
     }
-
-    const polygons = [];
 
     const positions = geometry.attributes.position;
     const normals = geometry.attributes.normal;
@@ -105,18 +106,35 @@ class CSG {
       const v2 = createVertex(i + 1);
       const v3 = createVertex(i + 2);
 
-      polygons.push(new Polygon([v1, v2, v3]));
+      this.polygons.push(new Polygon([v1, v2, v3]));
     }
 
-    const csg = new CSG();
-    csg.polygons = polygons;
-    return csg;
+    return this;
   }
 
-  static fromPolygons(polygons) {
-    const csg = new CSG();
-    csg.polygons = polygons;
-    return csg;
+  setFromMesh(mesh) {
+    mesh.updateMatrixWorld();
+    mesh.updateMatrix();
+
+    const transformedGeometry = mesh.geometry.clone();
+
+    transformedGeometry.applyMatrix4(mesh.matrix);
+
+    if (!this.material) this.material = mesh.material;
+
+    this.setFromGeometry(transformedGeometry);
+    return this;
+  }
+
+  setPolygons(polygons) {
+    this.polygons = polygons;
+    return this;
+  }
+
+  toMesh() {
+    if (!this.material) this.material = new MeshNormalMaterial();
+
+    return new Mesh(this.toGeometry(), this.material);
   }
 
   toGeometry() {
@@ -161,40 +179,13 @@ class CSG {
     };
 
     for (const polygon of this.polygons) {
-      let indices = [];
-
-      // the algorithm may generate large polygons.
-      // Since they are simple complex shapes, rather
-      // than use a triangulation algorithm it should
-      // be ok to hard code indices.
-
-      switch (polygon.vertices.length) {
-        case 3:
-          indices = [0, 1, 2];
-          break;
-        case 4:
-          indices = [0, 1, 2, 0, 2, 3];
-          break;
-        case 5:
-          indices = [0, 1, 2, 0, 2, 3, 0, 3, 4];
-          break;
-        case 6:
-          indices = [0, 1, 2, 0, 2, 3, 0, 3, 5, 3, 4, 5];
-          break;
-        default:
-          // N=6 should be the largest size generated,
-          // but just in case, throw a warning
-          console.warn(
-            'Large polygon encoutered: n = ',
-            polygon.vertices.length,
-          );
-      }
-
-      for (let i = 0; i < indices.length; i += 3) {
-        const v0 = polygon.vertices[indices[i]];
-        const v1 = polygon.vertices[indices[i + 1]];
-        const v2 = polygon.vertices[indices[i + 2]];
-        createFace(v0, v1, v2);
+      // triangulate the polygon
+      for (let i = 0; i <= polygon.vertices.length - 3; i++) {
+        createFace(
+          polygon.vertices[0],
+          polygon.vertices[i + 1],
+          polygon.vertices[i + 2],
+        );
       }
     }
 
@@ -226,10 +217,6 @@ class CSG {
     return csg;
   }
 
-  toPolygons() {
-    return this.polygons;
-  }
-
   // Return a new CSG solid representing space in either this solid or in the
   // solid `csg`
   //
@@ -254,7 +241,7 @@ class CSG {
     b.clipTo(a);
     b.invert();
     a.build(b.allPolygons());
-    return CSG.fromPolygons(a.allPolygons());
+    return new CSG().setPolygons(a.allPolygons());
   }
 
   // Return a new CSG solid representing space in this solid but not in the
@@ -273,7 +260,7 @@ class CSG {
   //
   // A && !B
   subtract(csg) {
-    return this.complement().union(csg);
+    return this.clone().complement().union(csg.clone()).complement();
   }
 
   // Return a new CSG solid representing space both this solid and in the
@@ -301,7 +288,7 @@ class CSG {
     b.clipTo(a);
     a.build(b.allPolygons());
     a.invert();
-    return CSG.fromPolygons(a.allPolygons());
+    return new CSG().setPolygons(a.allPolygons());
   }
 
   // Return a new CSG solid with solid and empty space switched

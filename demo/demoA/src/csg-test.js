@@ -6,93 +6,51 @@ import {
   PlaneBufferGeometry,
   SphereBufferGeometry,
   MeshNormalMaterial,
+  Mesh,
 } from '../../../node_modules/three/build/three.module.js';
 
 import { CSG } from '../../../build/csg.module.js';
 
-function createGeo(positions) {
-  const geometry = new BufferGeometry();
-
-  geometry.setAttribute(
-    'position',
-    new BufferAttribute(new Float32Array(positions), 3),
-  );
-
-  return geometry;
-}
-
 function testCSG(params) {
-  // prettier-ignore
-  const triangle = createGeo([
-    -0.2, -0.2,  0,
-    0.2, -0.2,  0,
-    0.2,  0.2,  0,
-  ] );
-
-  // prettier-ignore
-  const triangleUp = createGeo([
-    -0.2, -0.2,  0,
-    0.2,  0.2,  0,
-    -0.2, 0.2,  0,
-  ] );
-
-  // prettier-ignore
-  const square = createGeo([
-    -0.2, -0.2,  0,
-    0.2, -0.2,  0,
-    0.2,  0.2,  0,
-
-    0.2,  0.2,  0,
-    -0.2,  0.2,  0,
-    -0.2, -0.2,  0
-  ]);
-
-  const triangleCSG = CSG.fromGeometry(triangle);
-  // console.log('triangleCSG: ', triangleCSG, triangleCSG.toGeometry());
-  const triangleUpCSG = CSG.fromGeometry(triangleUp);
-  // console.log('triangleUpCSG: ', triangleUpCSG);
-  const squareCSG = CSG.fromGeometry(square);
-  // console.log('squareCSG: ', squareCSG);
-  const planeCSG = CSG.fromGeometry(
+  const material = new MeshNormalMaterial();
+  const planeCSG = new CSG().setFromGeometry(
     new PlaneBufferGeometry(0.2, 0.2),
   );
   // console.log('planeCSG: ', plane, planeCSG);
-  const boxCSG = CSG.fromGeometry(new BoxBufferGeometry(0.2, 0.2, 1));
-  const boxBCSG = CSG.fromGeometry(
+  const boxCSG = new CSG().setFromGeometry(
+    new BoxBufferGeometry(0.2, 0.2, 1),
+  );
+  const boxBCSG = new CSG().setFromGeometry(
     new BoxBufferGeometry(0.3, 0.3, 0.3),
   );
-  const cylinderCSG = CSG.fromGeometry(
+  const cylinderCSG = new CSG().setFromGeometry(
     new CylinderBufferGeometry(0.2, 0.2, 1),
   );
   // console.log('cylinderCSG: ', cylinder, cylinderCSG);
-  const sphereCSG = CSG.fromGeometry(new SphereBufferGeometry(0.2));
+  const sphereCSG = new CSG().setFromGeometry(
+    new SphereBufferGeometry(0.2),
+  );
   // console.log('sphereCSG: ', sphere, sphereCSG);
 
-  const testTriangle = () => {
-    // const test = triangleCSG.union(triangleUpCSG);
-    // const test = triangleCSG.subtract(triangleUpCSG);
-    const test = triangleCSG.intersect(triangleUpCSG);
-    // console.log(
-    //   'triangle: ',
-    //   triangleCSG.toGeometry().attributes.position.array,
-    // );
-    // console.log(
-    //   'triangleUp: ',
-    //   triangleUpCSG.toGeometry().attributes.position.array,
-    // );
-    // console.log(
-    //   'test: ',
-    //   test.toGeometry().attributes.position.array,
-    // );
+  const boxMesh = new Mesh(
+    new BoxBufferGeometry(0.2, 0.2, 1),
+    material,
+  );
+  boxMesh.position.set(0.1, 0.1, 0);
 
-    return test;
-  };
+  const sphereMesh = new Mesh(
+    new SphereBufferGeometry(0.2),
+    material,
+  );
+
+  const boxMCSG = new CSG().setFromMesh(boxMesh);
+  const sphereMCSG = new CSG().setFromMesh(sphereMesh);
 
   const testBox = () => {
     // console.log('boxCSG: ', box, boxCSG);
-    // const test = boxCSG.union(boxBCSG);
+    const test = boxCSG.union(boxBCSG);
     // const test = boxCSG.subtract(boxBCSG);
-    const test = boxCSG.intersect(boxBCSG);
+    // const test = boxCSG.intersect(boxBCSG);
     // console.log('test: ', test.polygons);
     // console.log('test: ', test.toGeometry().attributes.position);
 
@@ -101,8 +59,8 @@ function testCSG(params) {
 
   const testSphereBox = () => {
     // console.log('boxCSG: ', box, boxCSG);
-    const test = boxCSG.union(sphereCSG);
-    // const test = boxCSG.subtract(sphereCSG);
+    // const test = boxCSG.union(sphereCSG);
+    const test = boxCSG.subtract(sphereCSG);
     // const test = boxCSG.intersect(sphereCSG);
 
     // console.log('test: ', test.polygons);
@@ -111,22 +69,28 @@ function testCSG(params) {
     return test;
   };
 
+  const testSphereBoxMeshes = () => {
+    // console.log('boxMCSG: ', box, boxCSG);
+    // const test = boxMCSG.union(sphereMCSG);
+    const test = boxMCSG.subtract(sphereMCSG);
+    // const test = boxMCSG.intersect(sphereMCSG);
+
+    return test;
+  };
+
   // const test = testTriangle();
   // const test = testBox();
-  const test = testSphereBox();
+  // const test = testSphereBox();
+  const test = testSphereBoxMeshes();
 
   return {
-    triangle: triangleCSG.toGeometry(),
-    triangleUp: triangleUpCSG.toGeometry(),
-    triangleOrig: triangle,
-    square: squareCSG.toGeometry(),
-    squareOrig: square,
     plane: planeCSG.toGeometry(),
     box: boxCSG.toGeometry(),
     boxB: boxBCSG.toGeometry(),
     cylinder: cylinderCSG.toGeometry(),
     sphere: sphereCSG.toGeometry(),
     test: test.toGeometry(),
+    testMesh: test.toMesh(),
   };
 }
 

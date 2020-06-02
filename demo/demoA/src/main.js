@@ -34,60 +34,36 @@ function init() {
   //   wireframe: true,
   // });
 
-  const geometries = testCSG();
-  // console.log('geometries: ', geometries);
+  const results = testCSG();
 
-  const material = new MeshNormalMaterial({ side: DoubleSide });
+  const material = new MeshNormalMaterial();
+  // const material = new MeshNormalMaterial({ side: DoubleSide });
 
-  const triangle = new Mesh(geometries.triangle, material);
-  triangle.position.set(-1, 1, 0);
-  const triangleUp = new Mesh(geometries.triangleUp, material);
-  triangleUp.position.set(-0.5, 1, 0);
-
-  const square = new Mesh(geometries.square, material);
-  square.position.set(0, 1, 0);
-
-  const plane = new Mesh(geometries.plane, material);
+  const plane = new Mesh(results.plane, material);
   plane.position.set(1, 1, 0);
 
-  const box = new Mesh(geometries.box, material);
+  const box = new Mesh(results.box, material);
   box.position.set(-1, 0, 0);
-  const boxB = new Mesh(geometries.boxB, material);
+  const boxB = new Mesh(results.boxB, material);
   boxB.position.set(-0.5, 0, 0);
 
-  const cylinder = new Mesh(geometries.cylinder, material);
+  const cylinder = new Mesh(results.cylinder, material);
   cylinder.position.set(1, -1, 0);
 
-  const sphere = new Mesh(geometries.sphere, material);
+  const sphere = new Mesh(results.sphere, material);
   sphere.position.set(-1, -1, 0);
 
-  // tri
-  // -0.2, -0.2,  0.2,
-  // 0.2, -0.2,  0.2,
-  // 0.2,  0.2,  0.2,
-
-  // basic
-  // 0.2,  0.2,  0.2,
-  // 0.2,  -0.2,  0.2,
-  // -0.2,  -0.2,  0.2,
-
-  const test = new Mesh(geometries.test, material);
-  test.position.set(0, 0, 0);
-  // console.log(
-  //   'geometries.basic: ',
-  //   geometries.basic.attributes.position.array,
-  // );
+  const test = new Mesh(results.test, material);
+  test.position.set(1, 0, 0);
 
   scene.add(
-    triangle,
-    triangleUp,
-    square,
     plane,
     box,
     boxB,
     cylinder,
     sphere,
     test,
+    results.testMesh,
   );
 
   const renderer = new WebGLRenderer({ antialias: true });
