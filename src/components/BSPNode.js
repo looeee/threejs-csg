@@ -1,125 +1,104 @@
-import { Shape } from './Shape.js';
+import { CSG } from '../CSG.js';
 
-// Holds a node in a BSP tree AKA adaptive partitioning tree.
-// A BSP tree is built from a collection of polygons by picking a polygon to split along.
-// That polygon (and all other coplanar polygons) are added directly to that
-// node and the other polygons are added to the front and/or back subtrees.
-// This is not a leafy BSP tree since there is no distinction between internal and leaf nodes.
+// # class Node
+
+// Holds a node in a BSP tree. A BSP tree is built from a collection of polygons
+// by picking a polygon to split along. That polygon (and all other coplanar
+// polygons) are added directly to that node and the other polygons are added to
+// the front and/or back subtrees. This is not a leafy BSP tree since there is
+// no distinction between internal and leaf nodes.
+
 class BSPNode {
   constructor(polygons) {
-    // console.log('new Node', polygons);
     this.plane = null;
-    this.frontNode = null;
-    this.backNode = null;
+    this.front = null;
+    this.back = null;
     this.polygons = [];
-
     if (polygons) this.build(polygons);
   }
 
   clone() {
     const node = new BSPNode();
     node.plane = this.plane && this.plane.clone();
-    node.frontNode = this.frontNode && this.frontNode.clone();
-    node.backNode = this.backNode && this.backNode.clone();
-    node.polygons = this.polygons.map((p) => p.clone());
+    node.front = this.front && this.front.clone();
+    node.back = this.back && this.back.clone();
+    node.polygons = this.polygons.map(function (p) {
+      return p.clone();
+    });
     return node;
   }
 
-  // Invert the node
-  negate() {
-    for (const polygon of this.polygons) {
-      polygon.negate();
+  // Convert solid space to empty space and empty space to solid space.
+  invert() {
+    for (let i = 0; i < this.polygons.length; i++) {
+      this.polygons[i].flip();
     }
-
-    this.plane.negate();
-    if (this.frontNode) this.frontNode.negate();
-    if (this.backNode) this.backNode.negate();
-
-    const temp = this.frontNode;
-    this.frontNode = this.backNode;
-    this.backNode = temp;
+    this.plane.flip();
+    if (this.front) this.front.invert();
+    if (this.back) this.back.invert();
+    const temp = this.front;
+    this.front = this.back;
+    this.back = temp;
   }
 
-  // Recursively remove all polygons in polygons that are inside this BSP tree.
+  // Recursively remove all polygons in `polygons` that are inside this BSP
+  // tree.
   clipPolygons(polygons) {
     if (!this.plane) return polygons.slice();
-
-    let frontPolygons = [];
-    let backPolygons = [];
-
-    for (const polygon of polygons) {
-      this.plane.splitPolygon(
-        polygon,
-        frontPolygons, // coplanar front
-        backPolygons, // coplanar back
-        frontPolygons,
-        backPolygons,
-      );
+    let front = [];
+    let back = [];
+    for (let i = 0; i < polygons.length; i++) {
+      this.plane.splitPolygon(polygons[i], front, back, front, back);
     }
-
-    if (this.frontNode) {
-      frontPolygons = this.frontNode.clipPolygons(frontPolygons);
-    }
-
-    if (this.backNode) {
-      backPolygons = this.backNode.clipPolygons(backPolygons);
-    } else {
-      backPolygons = [];
-    }
-
-    return frontPolygons.concat(backPolygons);
+    if (this.front) front = this.front.clipPolygons(front);
+    if (this.back) back = this.back.clipPolygons(back);
+    else back = [];
+    return front.concat(back);
   }
 
-  // Remove all polygons in this BSP tree that are inside the other BSP tree bsp.
+  // Remove all polygons in this BSP tree that are inside the other BSP tree
+  // `bsp`.
   clipTo(bsp) {
     this.polygons = bsp.clipPolygons(this.polygons);
-    if (this.frontNode) this.frontNode.clipTo(bsp);
-    if (this.backNode) this.backNode.clipTo(bsp);
+    if (this.front) this.front.clipTo(bsp);
+    if (this.back) this.back.clipTo(bsp);
   }
 
   // Return a list of all polygons in this BSP tree.
   allPolygons() {
     let polygons = this.polygons.slice();
-    if (this.frontNode)
-      polygons = polygons.concat(this.frontNode.allPolygons());
-    if (this.backNode)
-      polygons = polygons.concat(this.backNode.allPolygons());
+    if (this.front)
+      polygons = polygons.concat(this.front.allPolygons());
+    if (this.back)
+      polygons = polygons.concat(this.back.allPolygons());
     return polygons;
   }
 
-  // Build a BSP tree out of polygons.
-  // When called on an existing tree, the new polygons are filtered down
-  // to the bottom of the tree and become new nodes there.
-  // Each set of polygons is partitioned using the first polygon
+  // Build a BSP tree out of `polygons`. When called on an existing tree, the
+  // new polygons are filtered down to the bottom of the tree and become new
+  // nodes there. Each set of polygons is partitioned using the first polygon
   // (no heuristic is used to pick a good split).
   build(polygons) {
     if (!polygons.length) return;
-
-    // start with the plane taken from an arbitrary polygon
-    if (!this.plane) {
-      this.plane = polygons[0].plane.clone();
-    }
-
-    const frontPolygons = [];
-    const backPolygons = [];
-
-    for (const polygon of polygons) {
+    if (!this.plane) this.plane = polygons[0].plane.clone();
+    const front = [];
+    const back = [];
+    for (let i = 0; i < polygons.length; i++) {
       this.plane.splitPolygon(
-        polygon,
-        // coplanar polygons are stored in this node
-        this.polygons, // coplanar front
-        this.polygons, // coplanar back
-        frontPolygons,
-        backPolygons,
+        polygons[i],
+        this.polygons,
+        this.polygons,
+        front,
+        back,
       );
     }
-
-    if (frontPolygons.length) {
-      if (!this.frontNode)
-        this.frontNode = new BSPNode(frontPolygons);
+    if (front.length) {
+      if (!this.front) this.front = new BSPNode();
+      this.front.build(front);
     }
-    if (backPolygons.length) {
-      if (!this.backNode) this.backNode = new BSPNode(backPolygons);
+    if (back.length) {
+      if (!this.back) this.back = new BSPNode();
+      this.back.build(back);
     }
   }
 }

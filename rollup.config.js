@@ -3,9 +3,9 @@ import nodeResolve from '@rollup/plugin-node-resolve';
 export default [
   {
     watch: {
-      include: 'src2/**',
+      include: 'src/**',
     },
-    input: 'src2/index.js',
+    input: 'src/index.js',
     plugins: [
       nodeResolve({
         mainFields: ['module'],

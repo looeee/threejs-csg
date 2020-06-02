@@ -1,3 +1,13 @@
+// # class Vector
+
+// Represents a 3D vector.
+//
+// Example usage:
+//
+//     new Vector(1, 2, 3);
+//     new Vector([1, 2, 3]);
+//     new Vector({ x: 1, y: 2, z: 3 });
+
 class Vector {
   constructor(x, y, z) {
     if (arguments.length == 3) {
@@ -14,12 +24,11 @@ class Vector {
       this.z = x[2];
     }
   }
-
   clone() {
     return new Vector(this.x, this.y, this.z);
   }
 
-  negate() {
+  negated() {
     return new Vector(-this.x, -this.y, -this.z);
   }
 
@@ -27,15 +36,15 @@ class Vector {
     return new Vector(this.x + a.x, this.y + a.y, this.z + a.z);
   }
 
-  sub(a) {
+  minus(a) {
     return new Vector(this.x - a.x, this.y - a.y, this.z - a.z);
   }
 
-  multiplyScalar(a) {
+  times(a) {
     return new Vector(this.x * a, this.y * a, this.z * a);
   }
 
-  divideScalar(a) {
+  dividedBy(a) {
     return new Vector(this.x / a, this.y / a, this.z / a);
   }
 
@@ -44,15 +53,15 @@ class Vector {
   }
 
   lerp(a, t) {
-    return this.plus(a.sub(this).multiplyScalar(t));
+    return this.plus(a.minus(this).times(t));
   }
 
   length() {
     return Math.sqrt(this.dot(this));
   }
 
-  normalize() {
-    return this.divideScalar(this.length());
+  unit() {
+    return this.dividedBy(this.length());
   }
 
   cross(a) {

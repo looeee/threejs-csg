@@ -47,29 +47,25 @@ function testCSG(params) {
     -0.2, -0.2,  0
   ]);
 
-  const triangleCSG = new CSG().fromGeometry(triangle);
+  const triangleCSG = CSG.fromGeometry(triangle);
   // console.log('triangleCSG: ', triangleCSG, triangleCSG.toGeometry());
-  const triangleUpCSG = new CSG().fromGeometry(triangleUp);
+  const triangleUpCSG = CSG.fromGeometry(triangleUp);
   // console.log('triangleUpCSG: ', triangleUpCSG);
-  const squareCSG = new CSG().fromGeometry(square);
+  const squareCSG = CSG.fromGeometry(square);
   // console.log('squareCSG: ', squareCSG);
-  const planeCSG = new CSG().fromGeometry(
+  const planeCSG = CSG.fromGeometry(
     new PlaneBufferGeometry(0.2, 0.2),
   );
   // console.log('planeCSG: ', plane, planeCSG);
-  const boxCSG = new CSG().fromGeometry(
-    new BoxBufferGeometry(0.2, 0.2, 1),
-  );
-  const boxBCSG = new CSG().fromGeometry(
+  const boxCSG = CSG.fromGeometry(new BoxBufferGeometry(0.2, 0.2, 1));
+  const boxBCSG = CSG.fromGeometry(
     new BoxBufferGeometry(0.3, 0.3, 0.3),
   );
-  const cylinderCSG = new CSG().fromGeometry(
+  const cylinderCSG = CSG.fromGeometry(
     new CylinderBufferGeometry(0.2, 0.2, 1),
   );
   // console.log('cylinderCSG: ', cylinder, cylinderCSG);
-  const sphereCSG = new CSG().fromGeometry(
-    new SphereBufferGeometry(0.2),
-  );
+  const sphereCSG = CSG.fromGeometry(new SphereBufferGeometry(0.2));
   // console.log('sphereCSG: ', sphere, sphereCSG);
 
   const testTriangle = () => {
@@ -92,11 +88,11 @@ function testCSG(params) {
 
   const testBox = () => {
     // console.log('boxCSG: ', box, boxCSG);
-    // const test = boxCSG.union(boxBCSG);
-    const test = boxCSG.subtract(boxBCSG);
+    const test = boxCSG.union(boxBCSG);
+    // const test = boxCSG.subtract(boxBCSG);
     // const test = boxCSG.intersect(boxBCSG);
-    console.log('test: ', test.polygons);
-    console.log('test: ', test.toGeometry().attributes.position);
+    // console.log('test: ', test.polygons);
+    // console.log('test: ', test.toGeometry().attributes.position);
 
     return test;
   };
@@ -107,15 +103,15 @@ function testCSG(params) {
     // const test = boxCSG.subtract(sphereCSG);
     // const test = boxCSG.intersect(sphereCSG);
 
-    console.log('test: ', test.polygons);
-    console.log('test: ', test.toGeometry().attributes.position);
+    // console.log('test: ', test.polygons);
+    // console.log('test: ', test.toGeometry().attributes.position);
 
     return test;
   };
 
   // const test = testTriangle();
-  const test = testBox();
-  // const test = testSphereBox();
+  // const test = testBox();
+  const test = testSphereBox();
 
   return {
     triangle: triangleCSG.toGeometry(),

@@ -1,105 +1,72 @@
-// import { Plane } from 'three';
+import { CSG } from '../CSG.js';
 import { Polygon } from './Polygon.js';
 
-function clipTriangleAgainstPlane(polygon, plane) {}
-
-class CuttingPlane {
-  // class CuttingPlane extends Plane {
-  constructor(normal, constant) {
-    // super(normal, constant);
+class Plane {
+  constructor(normal, w) {
     this.normal = normal;
-    this.constant = constant;
+    this.w = w;
   }
 
-  // flip -> negate
-  negate() {
-    this.normal = this.normal.negate();
-    this.constant = -this.constant;
+  // `Plane.EPSILON` is the tolerance used by `splitPolygon()` to decide if a
+  // point is on the plane.
+  static EPSILON = 1e-5;
+
+  static fromPoints(a, b, c) {
+    const n = b.minus(a).cross(c.minus(a)).unit();
+    return new Plane(n, n.dot(a));
   }
 
-  // fromPoints -> setFromCoplanarPoints
-  fromPoints(a, b, c) {
-    var n = b.sub(a).cross(c.sub(a)).normalize();
-    return new CuttingPlane(n, n.dot(a));
-  }
-
-  // clone -> clone
   clone() {
-    return new CuttingPlane(this.normal.clone(), this.constant);
+    return new Plane(this.normal.clone(), this.w);
   }
 
-  // Split polygon by this plane if needed,
-  // then put the polygon or polygon fragments in the appropriate lists.
-  // Coplanar polygons go into either coplanarFrontPolygons or coplanarBackPolygons
-  // depending on their orientation with respect to this plane.
-  // Polygons in front or in back of this plane go into either front or back.
-  //
-  // TODO: can this be simplified knowing that all polygons are triangles?
-  splitPolygon(
-    polygon,
-    coplanarFrontPolygons,
-    coplanarBackPolygons,
-    frontPolygons,
-    backPolygons,
-  ) {
-    // First, we will classify the polygon in one of these four classes
-    // relative to the plane. If the polygon is spanning the plane
-    // it must be split
-    const coplanar = 0;
-    const inFront = 1;
-    const behind = 2;
-    const spanning = 3;
+  flip() {
+    this.normal = this.normal.negated();
+    this.w = -this.w;
+  }
 
-    // tolerance to decide if a point is on the plane.
-    const epsilon = 1e-5;
+  // Split `polygon` by this plane if needed, then put the polygon or polygon
+  // fragments in the appropriate lists. Coplanar polygons go into either
+  // `coplanarFront` or `coplanarBack` depending on their orientation with
+  // respect to this plane. Polygons in front or in back of this plane go into
+  // either `front` or `back`.
+  splitPolygon(polygon, coplanarFront, coplanarBack, front, back) {
+    const COPLANAR = 0;
+    const FRONT = 1;
+    const BACK = 2;
+    const SPANNING = 3;
 
+    // Classify each point as well as the entire polygon into one of the above
+    // four classes.
     let polygonType = 0;
     const types = [];
-
     for (let i = 0; i < polygon.vertices.length; i++) {
-      const t =
-        this.normal.dot(polygon.vertices[i].position) - this.constant;
-
-      let type;
-      if (t < -epsilon) {
-        type = behind;
-      } else if (t > epsilon) {
-        type = inFront;
-      } else {
-        type = coplanar;
-      }
-
-      // smart (or at least, short) way to get the final polygon
-      // type by considering the status of each vertex
+      const t = this.normal.dot(polygon.vertices[i].pos) - this.w;
+      const type =
+        t < -Plane.EPSILON
+          ? BACK
+          : t > Plane.EPSILON
+          ? FRONT
+          : COPLANAR;
       polygonType |= type;
-
       types.push(type);
     }
-    // console.log('polygonType: ', polygonType);
-    // console.log('types: ', types);
 
-    // Put the polygon in the correct list, splitting if necessary.
-    // debugger;
+    // Put the polygon in the correct list, splitting it when necessary.
     switch (polygonType) {
-      case coplanar:
-        if (this.normal.dot(polygon.plane.normal) > 0) {
-          coplanarFrontPolygons.push(polygon);
-        } else {
-          coplanarBackPolygons.push(polygon);
-        }
+      case COPLANAR:
+        (this.normal.dot(polygon.plane.normal) > 0
+          ? coplanarFront
+          : coplanarBack
+        ).push(polygon);
         break;
-      case inFront:
-        frontPolygons.push(polygon);
+      case FRONT:
+        front.push(polygon);
         break;
-      case behind:
-        backPolygons.push(polygon);
+      case BACK:
+        back.push(polygon);
         break;
-      case spanning:
-        // console.log('spanning');
-        // TODO: move into separate function and give variables better names
-        // TODO: this looks like the stanard clipping algorithm as defined here:
-        // https://www.geometrictools.com/Documentation/ClipMesh.pdf
-        // verify?
+      case SPANNING:
         const f = [];
         const b = [];
         for (let i = 0; i < polygon.vertices.length; i++) {
@@ -107,49 +74,61 @@ class CuttingPlane {
           const ti = types[i];
           const tj = types[j];
           const vi = polygon.vertices[i];
-          // console.log('vi: ', vi);
           const vj = polygon.vertices[j];
-          // console.log(' vj: ', vj);
-
-          if (ti != behind) f.push(vi);
-          if (ti != inFront) {
-            b.push(ti != behind ? vi.clone() : vi);
-          }
-
-          if ((ti | tj) == spanning) {
+          if (ti != BACK) f.push(vi);
+          if (ti != FRONT) b.push(ti != BACK ? vi.clone() : vi);
+          if ((ti | tj) == SPANNING) {
             const t =
-              (this.constant - this.normal.dot(vi.position)) /
-              this.normal.dot(vj.position.sub(vi.position));
-
+              (this.w - this.normal.dot(vi.pos)) /
+              this.normal.dot(vj.pos.minus(vi.pos));
             const v = vi.interpolate(vj, t);
             f.push(v);
             b.push(v.clone());
           }
         }
-        if (f.length === 3) {
-          frontPolygons.push(new Polygon(f, polygon.shared));
-        } else if (f.length === 4) {
-          // console.log('f: ', f);
-          // split 4 sided poly
-          frontPolygons.push(
-            new Polygon([f[0], f[1], f[2]], polygon.shared),
-            new Polygon([f[0], f[2], f[3]], polygon.shared),
-          );
+        if (f.length >= 3) {
+          const p = new Polygon(f, polygon.shared);
+          front.push(p); // correct
         }
 
-        if (b.length === 3) {
-          backPolygons.push(new Polygon(b, polygon.shared));
-        } else if (b.length === 4) {
-          // console.log('b: ', b);
-          // split 4 sided poly
-          backPolygons.push(
-            new Polygon([b[0], b[1], b[2]], polygon.shared),
-            new Polygon([b[0], b[2], b[3]], polygon.shared),
-          );
+        if (b.length >= 3) {
+          const p = new Polygon(b, polygon.shared);
+          back.push(p);
         }
+
+        // if (f.length === 3) {
+        //   const p = new Polygon(f, polygon.shared);
+        //   // p.flip();
+        //   front.push(p); // correct
+        // } else if (f.length === 4) {
+        //   // split 4 sided poly
+        //   const p1 = new Polygon([f[0], f[1], f[2]], polygon.shared);
+        //   const p2 = new Polygon([f[0], f[2], f[3]], polygon.shared);
+        //   // p1.flip();
+        //   // p2.flip();
+        //   // console.log('p2: ', p2);
+        //   // p2.plane.flip();
+        //   front.push(p1); // correct
+        //   front.push(p2);
+        // }
+
+        // if (b.length === 3) {
+        //   const p = new Polygon(b, polygon.shared);
+        //   // p.flip();
+        //   back.push(p);
+        // } else if (b.length === 4) {
+        //   // split 4 sided poly
+        //   const p1 = new Polygon([b[0], b[1], b[2]], polygon.shared);
+        //   const p2 = new Polygon([b[0], b[2], b[3]], polygon.shared);
+        //   // p1.flip();
+        //   // p2.flip();
+        //   // p2.plane.flip();
+        //   back.push(p1);
+        //   back.push(p2);
+        // }
         break;
     }
   }
 }
 
-export { CuttingPlane };
+export { Plane };
