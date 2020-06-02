@@ -1,5 +1,4 @@
-import { CSG } from '../CSG.js';
-import { Plane } from './CuttingPlane.js';
+import { CuttingPlane } from './CuttingPlane.js';
 
 // # class Polygon
 
@@ -16,7 +15,7 @@ class Polygon {
   constructor(vertices, shared) {
     this.vertices = vertices;
     this.shared = shared;
-    this.plane = Plane.fromPoints(
+    this.plane = CuttingPlane.fromPoints(
       vertices[0].pos,
       vertices[1].pos,
       vertices[2].pos,

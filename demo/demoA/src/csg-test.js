@@ -99,8 +99,8 @@ function testCSG(params) {
 
   const testSphereBox = () => {
     // console.log('boxCSG: ', box, boxCSG);
-    const test = boxCSG.union(sphereCSG);
-    // const test = boxCSG.subtract(sphereCSG);
+    // const test = boxCSG.union(sphereCSG);
+    const test = boxCSG.subtract(sphereCSG);
     // const test = boxCSG.intersect(sphereCSG);
 
     // console.log('test: ', test.polygons);

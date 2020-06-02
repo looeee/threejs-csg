@@ -1,28 +1,23 @@
-import { CSG } from '../CSG.js';
+import { Plane } from 'three';
 import { Polygon } from './Polygon.js';
 
-class Plane {
-  constructor(normal, w) {
-    this.normal = normal;
-    this.w = w;
+class CuttingPlane extends Plane {
+  constructor(normal, constant) {
+    super(normal, constant);
   }
 
-  // `Plane.EPSILON` is the tolerance used by `splitPolygon()` to decide if a
-  // point is on the plane.
-  static EPSILON = 1e-5;
-
   static fromPoints(a, b, c) {
-    const n = b.minus(a).cross(c.minus(a)).unit();
-    return new Plane(n, n.dot(a));
+    const n = b.clone().sub(a).cross(c.clone().sub(a)).normalize();
+    return new CuttingPlane(n, n.dot(a));
   }
 
   clone() {
-    return new Plane(this.normal.clone(), this.w);
+    return new CuttingPlane(this.normal.clone(), this.constant);
   }
 
   flip() {
-    this.normal = this.normal.negated();
-    this.w = -this.w;
+    this.normal = this.normal.negate();
+    this.constant = -this.constant;
   }
 
   // Split `polygon` by this plane if needed, then put the polygon or polygon
@@ -36,18 +31,18 @@ class Plane {
     const BACK = 2;
     const SPANNING = 3;
 
+    // tolerance used to decide if a point is on the plane.
+    const EPSILON = 1e-5;
+
     // Classify each point as well as the entire polygon into one of the above
     // four classes.
     let polygonType = 0;
     const types = [];
     for (let i = 0; i < polygon.vertices.length; i++) {
-      const t = this.normal.dot(polygon.vertices[i].pos) - this.w;
+      const t =
+        this.normal.dot(polygon.vertices[i].pos) - this.constant;
       const type =
-        t < -Plane.EPSILON
-          ? BACK
-          : t > Plane.EPSILON
-          ? FRONT
-          : COPLANAR;
+        t < -EPSILON ? BACK : t > EPSILON ? FRONT : COPLANAR;
       polygonType |= type;
       types.push(type);
     }
@@ -79,8 +74,8 @@ class Plane {
           if (ti != FRONT) b.push(ti != BACK ? vi.clone() : vi);
           if ((ti | tj) == SPANNING) {
             const t =
-              (this.w - this.normal.dot(vi.pos)) /
-              this.normal.dot(vj.pos.minus(vi.pos));
+              (this.constant - this.normal.dot(vi.pos)) /
+              this.normal.dot(vj.pos.clone().sub(vi.pos));
             const v = vi.interpolate(vj, t);
             f.push(v);
             b.push(v.clone());
@@ -131,4 +126,4 @@ class Plane {
   }
 }
 
-export { Plane };
+export { CuttingPlane };

@@ -1,5 +1,3 @@
-import { CSG } from '../CSG.js';
-
 // # class Node
 
 // Holds a node in a BSP tree. A BSP tree is built from a collection of polygons

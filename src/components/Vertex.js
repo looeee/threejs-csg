@@ -1,6 +1,3 @@
-import { CSG } from '../CSG.js';
-import { Vector } from './Vector.js';
-
 // # class Vertex
 
 // Represents a vertex of a polygon. Use your own vertex class instead of this
@@ -13,8 +10,8 @@ import { Vector } from './Vector.js';
 
 class Vertex {
   constructor(pos, normal) {
-    this.pos = new Vector(pos);
-    if (normal) this.normal = new Vector(normal);
+    this.pos = pos;
+    if (normal) this.normal = normal;
   }
   clone() {
     return new Vertex(
@@ -26,7 +23,7 @@ class Vertex {
   // Invert all orientation-specific data (e.g. vertex normal). Called when the
   // orientation of a polygon is flipped.
   flip() {
-    this.normal = this.normal && this.normal.negated();
+    this.normal = this.normal && this.normal.negate();
   }
 
   // Create a new vertex between this vertex and `other` by linearly
@@ -34,8 +31,8 @@ class Vertex {
   // override this to interpolate additional properties.
   interpolate(other, t) {
     return new Vertex(
-      this.pos.lerp(other.pos, t),
-      this.normal.lerp(other.normal, t),
+      this.pos.clone().lerp(other.pos, t),
+      this.normal.clone().lerp(other.normal, t),
     );
   }
 }

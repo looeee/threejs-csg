@@ -2,12 +2,11 @@ import {
   BufferAttribute,
   BufferGeometry,
   Vector2,
-  // Earcut,
+  Vector3,
 } from 'three';
 
 import { BSPNode } from './components/BSPNode.js';
 import { Polygon } from './components/Polygon.js';
-import { Vector } from './components/Vector.js';
 import { Vertex } from './components/Vertex.js';
 
 // Constructive Solid Geometry (CSG) is a modeling technique that uses Boolean
@@ -81,13 +80,13 @@ class CSG {
     // const colors = geometry.attributes.color;
 
     function createVertex(index) {
-      const position = new Vector(
+      const position = new Vector3(
         positions.getX(index),
         positions.getY(index),
         positions.getZ(index),
       );
       const normal = normals
-        ? new Vector(
+        ? new Vector3(
             normals.getX(index),
             normals.getY(index),
             normals.getZ(index),

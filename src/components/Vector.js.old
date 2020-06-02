@@ -1,0 +1,132 @@
+// # class Vector
+
+// Represents a 3D vector.
+//
+// Example usage:
+//
+//     new Vector(1, 2, 3);
+//     new Vector([1, 2, 3]);
+//     new Vector({ x: 1, y: 2, z: 3 });
+
+class Vector {
+  constructor(x, y, z) {
+    this.x = x || 0;
+    this.y = y || 0;
+    this.z = z || 0;
+  }
+
+  clone() {
+    return new Vector(this.x, this.y, this.z);
+  }
+
+  negate() {
+    this.x = -this.x;
+    this.y = -this.y;
+    this.z = -this.z;
+
+    return this;
+  }
+
+  add(v, w) {
+    if (w !== undefined) {
+      console.warn(
+        'THREE.Vector3: .add() now only accepts one argument. Use .addVectors( a, b ) instead.',
+      );
+      // return this.addVectors(v, w);
+    }
+
+    this.x += v.x;
+    this.y += v.y;
+    this.z += v.z;
+
+    return this;
+  }
+
+  sub(v, w) {
+    if (w !== undefined) {
+      console.warn(
+        'THREE.Vector3: .sub() now only accepts one argument. Use .subVectors( a, b ) instead.',
+      );
+      // return this.subVectors(v, w);
+    }
+
+    this.x -= v.x;
+    this.y -= v.y;
+    this.z -= v.z;
+
+    return this;
+  }
+
+  multiplyScalar(scalar) {
+    this.x *= scalar;
+    this.y *= scalar;
+    this.z *= scalar;
+
+    return this;
+  }
+
+  divideScalar(scalar) {
+    return this.multiplyScalar(1 / scalar);
+  }
+
+  dot(a) {
+    return this.x * a.x + this.y * a.y + this.z * a.z;
+  }
+
+  lerp(v, alpha) {
+    this.x += (v.x - this.x) * alpha;
+    this.y += (v.y - this.y) * alpha;
+    this.z += (v.z - this.z) * alpha;
+
+    return this;
+  }
+
+  length() {
+    return Math.sqrt(
+      this.x * this.x + this.y * this.y + this.z * this.z,
+    );
+  }
+
+  normalize() {
+    return this.divideScalar(this.length() || 1);
+  }
+
+  cross(v, w) {
+    if (w !== undefined) {
+      console.warn(
+        'THREE.Vector3: .cross() now only accepts one argument. Use .crossVectors( a, b ) instead.',
+      );
+      return this.crossVectors(v, w);
+    }
+
+    return this.crossVectors(this, v);
+  }
+
+  crossVectors(a, b) {
+    var ax = a.x,
+      ay = a.y,
+      az = a.z;
+    var bx = b.x,
+      by = b.y,
+      bz = b.z;
+
+    this.x = ay * bz - az * by;
+    this.y = az * bx - ax * bz;
+    this.z = ax * by - ay * bx;
+
+    return this;
+  }
+
+  toArray(array, offset) {
+    if (array === undefined) array = [];
+    if (offset === undefined) offset = 0;
+
+    array[offset] = this.x;
+    array[offset + 1] = this.y;
+    array[offset + 2] = this.z;
+
+    return array;
+  }
+}
+
+export { Vector };
