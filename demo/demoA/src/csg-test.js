@@ -69,7 +69,9 @@ function testCSG(params) {
   // console.log('sphereCSG: ', sphere, sphereCSG);
 
   const testTriangle = () => {
-    const test = triangleCSG.union(triangleUpCSG);
+    // const test = triangleCSG.union(triangleUpCSG);
+    // const test = triangleCSG.subtract(triangleUpCSG);
+    const test = triangleCSG.intersect(triangleUpCSG);
     // console.log(
     //   'triangle: ',
     //   triangleCSG.toGeometry().attributes.position.array,
@@ -88,9 +90,9 @@ function testCSG(params) {
 
   const testBox = () => {
     // console.log('boxCSG: ', box, boxCSG);
-    const test = boxCSG.union(boxBCSG);
+    // const test = boxCSG.union(boxBCSG);
     // const test = boxCSG.subtract(boxBCSG);
-    // const test = boxCSG.intersect(boxBCSG);
+    const test = boxCSG.intersect(boxBCSG);
     // console.log('test: ', test.polygons);
     // console.log('test: ', test.toGeometry().attributes.position);
 
@@ -99,8 +101,8 @@ function testCSG(params) {
 
   const testSphereBox = () => {
     // console.log('boxCSG: ', box, boxCSG);
-    // const test = boxCSG.union(sphereCSG);
-    const test = boxCSG.subtract(sphereCSG);
+    const test = boxCSG.union(sphereCSG);
+    // const test = boxCSG.subtract(sphereCSG);
     // const test = boxCSG.intersect(sphereCSG);
 
     // console.log('test: ', test.polygons);

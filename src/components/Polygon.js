@@ -6,19 +6,14 @@ import { CuttingPlane } from './CuttingPlane.js';
 // be coplanar and form a convex loop. They do not have to be `Vertex`
 // instances but they must behave similarly (duck typing can be used for
 // customization).
-//
-// Each convex polygon has a `shared` property, which is shared between all
-// polygons that are clones of each other or were split from the same polygon.
-// This can be used to define per-polygon properties (such as surface color).
 
 class Polygon {
-  constructor(vertices, shared) {
+  constructor(vertices) {
     this.vertices = vertices;
-    this.shared = shared;
-    this.plane = CuttingPlane.fromPoints(
-      vertices[0].pos,
-      vertices[1].pos,
-      vertices[2].pos,
+    this.plane = new CuttingPlane().fromPoints(
+      vertices[0].pos.clone(),
+      vertices[1].pos.clone(),
+      vertices[2].pos.clone(),
     );
   }
 
@@ -26,22 +21,14 @@ class Polygon {
     const vertices = this.vertices.map(function (v) {
       return v.clone();
     });
-    return new Polygon(vertices, this.shared);
+    return new Polygon(vertices);
   }
 
-  flip() {
+  negate() {
     this.vertices.reverse().map(function (v) {
-      v.flip();
+      v.negate();
     });
-    this.plane.flip();
-  }
-
-  flattenPositions() {
-    const positions = [];
-    for (const vertex of this.vertices) {
-      positions.push(vertex.pos.x, vertex.pos.y, vertex.pos.z);
-    }
-    return positions;
+    this.plane.negate();
   }
 }
 

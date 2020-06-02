@@ -231,7 +231,7 @@ class CSG {
   }
 
   // Return a new CSG solid representing space in either this solid or in the
-  // solid `csg`. Neither this solid nor the solid `csg` are modified.
+  // solid `csg`
   //
   //     A.union(B)
   //
@@ -244,9 +244,10 @@ class CSG {
   //          |       |            |       |
   //          +-------+            +-------+
   //
+  // A || B
   union(csg) {
-    const a = new BSPNode(this.clone().polygons);
-    const b = new BSPNode(csg.clone().polygons);
+    const a = new BSPNode(this.polygons);
+    const b = new BSPNode(csg.polygons);
     a.clipTo(b);
     b.clipTo(a);
     b.invert();
@@ -257,7 +258,7 @@ class CSG {
   }
 
   // Return a new CSG solid representing space in this solid but not in the
-  // solid `csg`. Neither this solid nor the solid `csg` are modified.
+  // solid `csg`
   //
   //     A.subtract(B)
   //
@@ -270,22 +271,13 @@ class CSG {
   //          |       |
   //          +-------+
   //
+  // A && !B
   subtract(csg) {
-    const a = new BSPNode(this.clone().polygons);
-    const b = new BSPNode(csg.clone().polygons);
-    a.invert();
-    a.clipTo(b);
-    b.clipTo(a);
-    b.invert();
-    b.clipTo(a);
-    b.invert();
-    a.build(b.allPolygons());
-    a.invert();
-    return CSG.fromPolygons(a.allPolygons());
+    return this.complement().union(csg);
   }
 
   // Return a new CSG solid representing space both this solid and in the
-  // solid `csg`. Neither this solid nor the solid `csg` are modified.
+  // solid `csg`
   //
   //     A.intersect(B)
   //
@@ -298,9 +290,10 @@ class CSG {
   //          |       |
   //          +-------+
   //
+  // A && B
   intersect(csg) {
-    const a = new BSPNode(this.clone().polygons);
-    const b = new BSPNode(csg.clone().polygons);
+    const a = new BSPNode(this.polygons);
+    const b = new BSPNode(csg.polygons);
     a.invert();
     b.clipTo(a);
     b.invert();
@@ -311,12 +304,12 @@ class CSG {
     return CSG.fromPolygons(a.allPolygons());
   }
 
-  // Return a new CSG solid with solid and empty space switched. This solid is
-  // not modified.
-  inverse() {
-    const csg = this.clone();
+  // Return a new CSG solid with solid and empty space switched
+  // !A
+  complement() {
+    const csg = this;
     csg.polygons.map(function (p) {
-      p.flip();
+      p.negate();
     });
     return csg;
   }

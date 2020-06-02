@@ -22,7 +22,7 @@ class Vertex {
 
   // Invert all orientation-specific data (e.g. vertex normal). Called when the
   // orientation of a polygon is flipped.
-  flip() {
+  negate() {
     this.normal = this.normal && this.normal.negate();
   }
 

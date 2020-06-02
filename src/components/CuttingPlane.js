@@ -1,23 +1,60 @@
-import { Plane } from 'three';
+import { Plane, Vector3 } from 'three';
 import { Polygon } from './Polygon.js';
+
+var _vector1 = new Vector3();
+var _vector2 = new Vector3();
 
 class CuttingPlane extends Plane {
   constructor(normal, constant) {
     super(normal, constant);
   }
 
-  static fromPoints(a, b, c) {
-    const n = b.clone().sub(a).cross(c.clone().sub(a)).normalize();
-    return new CuttingPlane(n, n.dot(a));
+  fromPoints(a, b, c) {
+    const normal = b
+      .subVectors(b, a)
+      .cross(_vector2.subVectors(c, a))
+      .normalize();
+
+    this.normal = normal;
+    this.constant = normal.dot(a);
+
+    return this;
+  }
+
+  setFromCoplanarPoints(a, b, c) {
+    var normal = _vector1
+      .subVectors(c, b)
+      .cross(_vector2.subVectors(a, b))
+      .normalize();
+
+    this.setFromNormalAndCoplanarPoint(normal, a);
+
+    return this;
+  }
+
+  setFromNormalAndCoplanarPoint(normal, point) {
+    this.normal.copy(normal);
+    this.constant = -point.dot(this.normal);
+
+    return this;
   }
 
   clone() {
-    return new CuttingPlane(this.normal.clone(), this.constant);
+    return new CuttingPlane().copy(this);
   }
 
-  flip() {
-    this.normal = this.normal.negate();
-    this.constant = -this.constant;
+  copy(plane) {
+    this.normal.copy(plane.normal);
+    this.constant = plane.constant;
+
+    return this;
+  }
+
+  negate() {
+    this.constant *= -1;
+    this.normal.negate();
+
+    return this;
   }
 
   // Split `polygon` by this plane if needed, then put the polygon or polygon
@@ -82,45 +119,14 @@ class CuttingPlane extends Plane {
           }
         }
         if (f.length >= 3) {
-          const p = new Polygon(f, polygon.shared);
-          front.push(p); // correct
+          const p = new Polygon(f);
+          front.push(p);
         }
 
         if (b.length >= 3) {
-          const p = new Polygon(b, polygon.shared);
+          const p = new Polygon(b);
           back.push(p);
         }
-
-        // if (f.length === 3) {
-        //   const p = new Polygon(f, polygon.shared);
-        //   // p.flip();
-        //   front.push(p); // correct
-        // } else if (f.length === 4) {
-        //   // split 4 sided poly
-        //   const p1 = new Polygon([f[0], f[1], f[2]], polygon.shared);
-        //   const p2 = new Polygon([f[0], f[2], f[3]], polygon.shared);
-        //   // p1.flip();
-        //   // p2.flip();
-        //   // console.log('p2: ', p2);
-        //   // p2.plane.flip();
-        //   front.push(p1); // correct
-        //   front.push(p2);
-        // }
-
-        // if (b.length === 3) {
-        //   const p = new Polygon(b, polygon.shared);
-        //   // p.flip();
-        //   back.push(p);
-        // } else if (b.length === 4) {
-        //   // split 4 sided poly
-        //   const p1 = new Polygon([b[0], b[1], b[2]], polygon.shared);
-        //   const p2 = new Polygon([b[0], b[2], b[3]], polygon.shared);
-        //   // p1.flip();
-        //   // p2.flip();
-        //   // p2.plane.flip();
-        //   back.push(p1);
-        //   back.push(p2);
-        // }
         break;
     }
   }
