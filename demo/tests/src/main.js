@@ -73,6 +73,7 @@ function init() {
     // test,
     results.testMesh,
   );
+  console.log('results.testMesh: ', results.testMesh);
 
   const renderer = new WebGLRenderer({ antialias: true });
   renderer.setSize(container.clientWidth, container.clientHeight);

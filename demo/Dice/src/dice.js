@@ -1,18 +1,11 @@
 import {
-  AmbientLight,
   BoxBufferGeometry,
   SphereBufferGeometry,
   CylinderBufferGeometry,
   MeshStandardMaterial,
-  DirectionalLight,
   Color,
-  DoubleSide,
   Mesh,
-  MeshBasicMaterial,
-  MeshNormalMaterial,
-  PerspectiveCamera,
-  Scene,
-  WebGLRenderer,
+  TextureLoader,
 } from '../../../node_modules/three/build/three.module.js';
 
 import { OrbitControls } from '../../../node_modules/three/examples/jsm/controls/OrbitControls.js';
@@ -53,96 +46,100 @@ function createDice() {
     [0, -67, 0], // face 1
   ];
 
-  const sphereDimple = new SphereBufferGeometry(19.5, 32, 16);
-  const sphere = new SphereBufferGeometry(7.5, 32, 16);
-  const cylinder = new CylinderBufferGeometry(7.5, 7.5, 85, 32);
-  const box = new BoxBufferGeometry(100, 85, 85);
+  const loader = new TextureLoader();
+  const textureBW = loader.load(
+    '/demo/assets/textures/uv-test-bw.png',
+  );
+  const textureCol = loader.load(
+    '/demo/assets/textures/uv-test-col.png',
+  );
+
+  const red = new MeshStandardMaterial({ color: 'orangered' });
+  const green = new MeshStandardMaterial({ color: 'seagreen' });
+  const blue = new MeshStandardMaterial({ color: 'lightblue' });
+  const uvBW = new MeshStandardMaterial({ map: textureBW });
+  const uvCol = new MeshStandardMaterial({ map: textureCol });
+
+  const dimple = new Mesh(
+    new SphereBufferGeometry(19.5, 32, 16),
+    uvBW,
+  );
+  const sphere = new Mesh(
+    new SphereBufferGeometry(7.5, 32, 16),
+    uvBW,
+  );
+  const cylinder = new Mesh(
+    new CylinderBufferGeometry(7.5, 7.5, 85, 32),
+    uvBW,
+  );
+  const box = new Mesh(new BoxBufferGeometry(100, 85, 85), uvBW);
+
   const dimpleColor = new Color(0.25, 0.25, 0.25);
 
-  // let cube = CSG.union([
-  //   box,
-  //   box.clone().rotateY(ninetyDegrees),
-  //   box.clone().rotateZ(ninetyDegrees),
-  // ]);
-
-  const boxCSG_A = new CSG().setFromGeometry(box);
-  const boxCSG_B = new CSG().setFromGeometry(
+  let dice = new CSG().union([
+    box,
     box.clone().rotateY(ninetyDegrees),
-  );
-  const boxCSG_C = new CSG().setFromGeometry(
     box.clone().rotateZ(ninetyDegrees),
-  );
-  // const sphereCornerCSG = new CSG().setFromGeometry(sphere);
-  const cylinderCSG = new CSG().setFromGeometry(cylinder);
+  ]);
 
-  let dice = boxCSG_A.union(boxCSG_B).union(boxCSG_C);
+  const unionOperands = [];
+  const subtractionOperands = [];
 
   const createRoundedCube = (x) => {
-    // const operations = [cube];
     if (x < 8) {
-      sphere
-        .center()
-        .translate(
-          moduloSwitch(x, 1),
-          moduloSwitch(x, 2),
-          moduloSwitch(x, 4),
-        );
-      const cornerCSG = new CSG().setFromGeometry(sphere);
-      dice = dice.union(cornerCSG);
-    }
-
-    if (x < 4) {
-      const cylinderCSG = new CSG().setFromGeometry(
-        cylinder
-          .clone()
-          .center()
-          .translate(moduloSwitch(x, 1), 0, moduloSwitch(x, 2)),
+      const corner = sphere.clone();
+      corner.position.set(
+        moduloSwitch(x, 1),
+        moduloSwitch(x, 2),
+        moduloSwitch(x, 4),
       );
-      dice = dice.union(cylinderCSG);
+      unionOperands.push(corner);
     }
-    // if (x > 3 && x < 8)
-    //   operations.push(
-    //     cylinder
-    //       .center()
-    //       .translate(moduloSwitch(x, 1), moduloSwitch(x, 2), 0),
-    //   );
-    // if (x > 7)
-    //   operations.push(
-    //     cylinder
-    //       .center()
-    //       .translate(0, moduloSwitch(x, 1), moduloSwitch(x, 2)),
-    //   );
-    // cube = CSG.union(operations);
-    // if (x === 3) cylinder.rotateX(ninetyDegrees);
-    // if (x === 7) cylinder.rotateY(ninetyDegrees);
+    if (x < 4) {
+      const edge = cylinder.clone();
+      edge.position.set(moduloSwitch(x, 1), 0, moduloSwitch(x, 2));
+      unionOperands.push(edge);
+    }
+    if (x === 3) {
+      cylinder.rotateX(ninetyDegrees);
+    }
+    if (x > 3 && x < 8) {
+      const edge = cylinder.clone();
+      edge.position.set(moduloSwitch(x, 1), moduloSwitch(x, 2), 0);
+      unionOperands.push(edge);
+    }
+    if (x > 7) {
+      const edge = cylinder.clone();
+      edge.position.set(0, moduloSwitch(x, 1), moduloSwitch(x, 2));
+      edge.rotateZ(ninetyDegrees);
+      unionOperands.push(edge);
+    }
   };
 
-  const createDimples = (dimple) => {
-    if (dimple[3]) sphereDimple.rotateX(ninetyDegrees);
-    cube = CSG.subtract(
-      [
-        cube,
-        sphereDimple
-          .center()
-          .translate(dimple[0], dimple[1], dimple[2]),
-      ],
-      [null, dimpleColor],
+  const createDimples = (dimplePos) => {
+    if (dimplePos[3]) dimple.rotateX(ninetyDegrees);
+    const currentDimple = dimple.clone();
+    currentDimple.position.set(
+      dimplePos[0],
+      dimplePos[1],
+      dimplePos[2],
     );
+    subtractionOperands.push(currentDimple);
   };
 
   const start = new Date().getTime();
 
-  let x = 0;
-  const steps = () => {
-    if (x < 12) createRoundedCube(x);
-    // if (x > 11 && x < 33) createDimples(dimpleData[x - 12]);
-    if (x < 33) setTimeout(steps, 0);
-    else
-      document.querySelector('.time').innerHTML =
-        (new Date().getTime() - start) / 1000;
-    x++;
-  };
-  steps();
+  for (let i = 0; i < 34; i++) {
+    if (i < 12) createRoundedCube(i);
+    if (i > 11 && i < 16) createDimples(dimpleData[i - 12]);
+    // if (i > 11 && i < 33) createDimples(dimpleData[i - 12]);
+  }
+  dice.union(unionOperands);
+  // dice.subtract(subtractionOperands);
+  console.log('subtractionOperands: ', subtractionOperands);
+
+  document.querySelector('.time').innerHTML =
+    (new Date().getTime() - start) / 1000;
 
   return dice.toGeometry();
 }
