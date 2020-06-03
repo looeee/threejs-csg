@@ -232,16 +232,30 @@ class CSG {
   //          +-------+            +-------+
   //
   // A || B
-  union(csg) {
-    const a = new BSPNode(this.polygons);
-    const b = new BSPNode(csg.polygons);
+  union(operands) {
+    for (const operand of operands) {
+      if (!this.polygons.length) {
+        this.setFromMesh(operand);
+      } else {
+        this.polygons = this.unionOperand(
+          new CSG().setFromMesh(operand),
+        );
+      }
+    }
+
+    return this;
+  }
+
+  unionOperand(operand) {
+    const a = new BSPNode(this.clone().polygons);
+    const b = new BSPNode(operand.clone().polygons);
     a.clipTo(b);
     b.clipTo(a);
     b.invert();
     b.clipTo(a);
     b.invert();
     a.build(b.allPolygons());
-    return new CSG().setPolygons(a.allPolygons());
+    return a.allPolygons();
   }
 
   // Return a new CSG solid representing space in this solid but not in the
@@ -259,8 +273,36 @@ class CSG {
   //          +-------+
   //
   // A && !B
-  subtract(csg) {
-    return this.clone().complement().union(csg.clone()).complement();
+  // subtractPair(x, y) {
+  //   return x.clone().complement().union([y.clone()]).complement()
+  // }
+
+  subtract(operands) {
+    for (const operand of operands) {
+      if (!this.polygons.length) {
+        this.setFromMesh(operand);
+      } else {
+        this.polygons = this.subtractOperand(
+          new CSG().setFromMesh(operand),
+        );
+      }
+    }
+
+    return this;
+  }
+
+  subtractOperand(operand) {
+    const a = new BSPNode(this.clone().polygons);
+    const b = new BSPNode(operand.clone().polygons);
+    a.invert();
+    a.clipTo(b);
+    b.clipTo(a);
+    b.invert();
+    b.clipTo(a);
+    b.invert();
+    a.build(b.allPolygons());
+    a.invert();
+    return a.allPolygons();
   }
 
   // Return a new CSG solid representing space both this solid and in the
@@ -278,9 +320,24 @@ class CSG {
   //          +-------+
   //
   // A && B
-  intersect(csg) {
-    const a = new BSPNode(this.polygons);
-    const b = new BSPNode(csg.polygons);
+  intersect(operands) {
+    for (const operand of operands) {
+      if (!this.polygons.length) {
+        this.setFromMesh(operand);
+      } else {
+        this.polygons = this.intersectOperand(
+          new CSG().setFromMesh(operand),
+        );
+      }
+    }
+
+    return this;
+  }
+
+  intersectOperand(operand) {
+    const a = new BSPNode(this.clone().polygons);
+    const b = new BSPNode(operand.clone().polygons);
+
     a.invert();
     b.clipTo(a);
     b.invert();
@@ -288,10 +345,10 @@ class CSG {
     b.clipTo(a);
     a.build(b.allPolygons());
     a.invert();
-    return new CSG().setPolygons(a.allPolygons());
+    return a.allPolygons();
   }
 
-  // Return a new CSG solid with solid and empty space switched
+  // Switch solid and empty space
   // !A
   complement() {
     const csg = this;
