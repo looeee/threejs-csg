@@ -75,7 +75,7 @@ class BSPNode {
   // (no heuristic is used to pick a good split).
   build(polygons) {
     if (!polygons.length) return;
-    if (!this.plane) this.plane = polygons[0].plane.clone();
+    if (!this.plane) this.plane = polygons[0].plane;
     const front = [];
     const back = [];
     for (let i = 0; i < polygons.length; i++) {

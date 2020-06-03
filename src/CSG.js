@@ -58,7 +58,7 @@ import { Vertex } from './components/Vertex.js';
 class CSG {
   constructor() {
     this.polygons = [];
-    this.material = null;
+    this.material = [];
   }
 
   setFromGeometry(geometry) {
@@ -120,7 +120,7 @@ class CSG {
 
     transformedGeometry.applyMatrix4(mesh.matrix);
 
-    if (!this.material) this.material = mesh.material;
+    this.material.push(mesh.material);
 
     this.setFromGeometry(transformedGeometry);
     return this;
@@ -132,9 +132,7 @@ class CSG {
   }
 
   toMesh() {
-    if (!this.material) this.material = new MeshNormalMaterial();
-
-    return new Mesh(this.toGeometry(), this.material);
+    return new Mesh(this.toGeometry(), this.material[0]);
   }
 
   toGeometry() {
@@ -157,8 +155,7 @@ class CSG {
         c.pos.z,
       );
 
-      // Note: it's probably OK to assume that if one vertex doesn't
-      // have a normal/uv/color then none do
+      // TODO: should not assume that all vertices have the same attributes
       if (a.normal) {
         normals.push(
           a.normal.x,
@@ -234,12 +231,13 @@ class CSG {
   // A || B
   union(operands) {
     for (const operand of operands) {
+      // console.log('operand: ', operand);
       if (!this.polygons.length) {
         this.setFromMesh(operand);
       } else {
-        this.polygons = this.unionOperand(
-          new CSG().setFromMesh(operand),
-        );
+        // todo: support multimaterial
+        this.material.push(operand.material);
+        this.unionOperand(new CSG().setFromMesh(operand));
       }
     }
 
@@ -247,15 +245,16 @@ class CSG {
   }
 
   unionOperand(operand) {
-    const a = new BSPNode(this.clone().polygons);
-    const b = new BSPNode(operand.clone().polygons);
+    const a = new BSPNode(this.polygons);
+    const b = new BSPNode(operand.polygons);
     a.clipTo(b);
     b.clipTo(a);
     b.invert();
     b.clipTo(a);
     b.invert();
     a.build(b.allPolygons());
-    return a.allPolygons();
+    this.polygons = a.allPolygons();
+    return this;
   }
 
   // Return a new CSG solid representing space in this solid but not in the
@@ -273,18 +272,13 @@ class CSG {
   //          +-------+
   //
   // A && !B
-  // subtractPair(x, y) {
-  //   return x.clone().complement().union([y.clone()]).complement()
-  // }
-
   subtract(operands) {
     for (const operand of operands) {
       if (!this.polygons.length) {
         this.setFromMesh(operand);
       } else {
-        this.polygons = this.subtractOperand(
-          new CSG().setFromMesh(operand),
-        );
+        this.material.push(operand.material);
+        this.subtractOperand(new CSG().setFromMesh(operand));
       }
     }
 
@@ -292,18 +286,21 @@ class CSG {
   }
 
   subtractOperand(operand) {
-    const a = new BSPNode(this.clone().polygons);
-    const b = new BSPNode(operand.clone().polygons);
-    a.invert();
-    a.clipTo(b);
-    b.clipTo(a);
-    b.invert();
-    b.clipTo(a);
-    b.invert();
-    a.build(b.allPolygons());
-    a.invert();
-    return a.allPolygons();
+    this.complement().unionOperand(operand).complement();
   }
+  // subtractOperand(operand) {
+  //   const a = new BSPNode(this.polygons);
+  //   const b = new BSPNode(operand.polygons);
+  //   a.invert();
+  //   a.clipTo(b);
+  //   b.clipTo(a);
+  //   b.invert();
+  //   b.clipTo(a);
+  //   b.invert();
+  //   a.build(b.allPolygons());
+  //   a.invert();
+  //   this.polygons = a.allPolygons();
+  // }
 
   // Return a new CSG solid representing space both this solid and in the
   // solid `csg`
@@ -325,9 +322,8 @@ class CSG {
       if (!this.polygons.length) {
         this.setFromMesh(operand);
       } else {
-        this.polygons = this.intersectOperand(
-          new CSG().setFromMesh(operand),
-        );
+        this.material.push(operand.material);
+        this.intersectOperand(new CSG().setFromMesh(operand));
       }
     }
 
@@ -335,8 +331,8 @@ class CSG {
   }
 
   intersectOperand(operand) {
-    const a = new BSPNode(this.clone().polygons);
-    const b = new BSPNode(operand.clone().polygons);
+    const a = new BSPNode(this.polygons);
+    const b = new BSPNode(operand.polygons);
 
     a.invert();
     b.clipTo(a);
@@ -345,17 +341,16 @@ class CSG {
     b.clipTo(a);
     a.build(b.allPolygons());
     a.invert();
-    return a.allPolygons();
+    this.polygons = a.allPolygons();
   }
 
   // Switch solid and empty space
   // !A
   complement() {
-    const csg = this;
-    csg.polygons.map(function (p) {
+    this.polygons.map((p) => {
       p.negate();
     });
-    return csg;
+    return this;
   }
 }
 

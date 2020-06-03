@@ -9,14 +9,16 @@
 // is not used anywhere else.
 
 class Vertex {
-  constructor(pos, normal) {
+  constructor(pos, normal, uv) {
     this.pos = pos;
     if (normal) this.normal = normal;
+    if (uv) this.uv = uv;
   }
   clone() {
     return new Vertex(
       this.pos.clone(),
       this.normal && this.normal.clone(),
+      this.uv && this.uv.clone(),
     );
   }
 
@@ -30,9 +32,19 @@ class Vertex {
   // interpolating all properties using a parameter of `t`. Subclasses should
   // override this to interpolate additional properties.
   interpolate(other, t) {
+    let normal = null;
+    if (this.normal && other.normal) {
+      normal = this.normal.clone().lerp(other.normal, t);
+    }
+    let uv = null;
+    if (this.uv && other.uv) {
+      uv = this.uv.clone().lerp(other.uv, t);
+    }
+
     return new Vertex(
       this.pos.clone().lerp(other.pos, t),
-      this.normal.clone().lerp(other.normal, t),
+      normal,
+      uv,
     );
   }
 }
