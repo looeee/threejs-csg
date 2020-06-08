@@ -7,7 +7,8 @@
   "scripts": {
     "build": "rollup -c",
     "server": "http-server -c-1 -p 8080 --cors",
-    "start": "concurrently --names \"ROLLUP,HTTP\" -c \"bgBlue.bold,bgGreen.bold\" \"rollup -c -w -m inline\" \"npm run server\""
+    "watch-js": "rollup -c -w -m inline",
+    "start": "concurrently --names \"ROLLUP,HTTP\" -c \"bgBlue.bold,bgGreen.bold\" \"npm run watch-js\" \"npm run server\""
   },
   "repository": {
     "type": "git",
