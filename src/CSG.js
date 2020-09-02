@@ -1,11 +1,5 @@
-import {
-  BufferAttribute,
-  BufferGeometry,
-  Mesh,
-  MeshNormalMaterial,
-  Vector2,
-  Vector3,
-} from 'three';
+
+import * as THREE from 'three';
 
 import { BSPNode } from './components/BSPNode.js';
 import { Polygon } from './components/Polygon.js';
@@ -62,7 +56,7 @@ class CSG {
   }
 
   setFromGeometry(geometry) {
-    if (!geometry instanceof BufferGeometry) {
+    if (!geometry instanceof THREE.BufferGeometry) {
       console.error(
         'This library only works with three.js BufferGeometry',
       );
@@ -81,13 +75,13 @@ class CSG {
     // const colors = geometry.attributes.color;
 
     function createVertex(index) {
-      const position = new Vector3(
+      const position = new THREE.Vector3(
         positions.getX(index),
         positions.getY(index),
         positions.getZ(index),
       );
       const normal = normals
-        ? new Vector3(
+        ? new THREE.Vector3(
             normals.getX(index),
             normals.getY(index),
             normals.getZ(index),
@@ -95,7 +89,7 @@ class CSG {
         : null;
 
       const uv = uvs
-        ? new Vector2(uvs.getX(index), uvs.getY(index))
+        ? new THREE.Vector2(uvs.getX(index), uvs.getY(index))
         : null;
 
       return new Vertex(position, normal, uv);
@@ -132,11 +126,11 @@ class CSG {
   }
 
   toMesh() {
-    return new Mesh(this.toGeometry(), this.material[0]);
+    return new THREE.Mesh(this.toGeometry(), this.material[0]);
   }
 
   toGeometry() {
-    const geometry = new BufferGeometry();
+    const geometry = new THREE.BufferGeometry();
 
     const positions = [];
     const normals = [];
@@ -188,18 +182,19 @@ class CSG {
 
     geometry.setAttribute(
       'position',
-      new BufferAttribute(new Float32Array(positions), 3),
+      new THREE.BufferAttribute(new Float32Array(positions), 3),
     );
     if (normals.length) {
       geometry.setAttribute(
         'normal',
-        new BufferAttribute(new Float32Array(normals), 3),
+		new
+		THREE.BufferAttribute(new Float32Array(normals), 3),
       );
     }
     if (uvs.length) {
       geometry.setAttribute(
         'uv',
-        new BufferAttribute(new Float32Array(uvs), 2),
+        new THREE.BufferAttribute(new Float32Array(uvs), 2),
       );
     }
 

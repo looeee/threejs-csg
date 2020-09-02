@@ -1,19 +1,9 @@
-import {
-  BoxBufferGeometry,
-  CylinderBufferGeometry,
-  BufferAttribute,
-  BufferGeometry,
-  PlaneBufferGeometry,
-  SphereBufferGeometry,
-  MeshStandardMaterial,
-  Mesh,
-  TextureLoader,
-} from '../../../node_modules/three/build/three.module.js';
+import * as THREE from '../../../node_modules/three/build/three.module.js';
 
 import { CSG } from '../../../build/csg.module.js';
 
 function testCSG(params) {
-  const loader = new TextureLoader();
+  const loader = new THREE.TextureLoader();
   const textureBW = loader.load(
     '/demo/assets/textures/uv-test-bw.png',
   );
@@ -21,17 +11,17 @@ function testCSG(params) {
     '/demo/assets/textures/uv-test-col.png',
   );
 
-  const red = new MeshStandardMaterial({ color: 'orangered' });
-  const green = new MeshStandardMaterial({ color: 'seagreen' });
-  const blue = new MeshStandardMaterial({ color: 'lightblue' });
-  const uvBW = new MeshStandardMaterial({ map: textureBW });
-  const uvCol = new MeshStandardMaterial({ map: textureCol });
+  const red = new THREE.MeshStandardMaterial({ color: 'orangered' });
+  const green = new THREE.MeshStandardMaterial({ color: 'seagreen' });
+  const blue = new THREE.MeshStandardMaterial({ color: 'lightblue' });
+  const uvBW = new THREE.MeshStandardMaterial({ map: textureBW });
+  const uvCol = new THREE.MeshStandardMaterial({ map: textureCol });
 
-  const box = new Mesh(new BoxBufferGeometry(0.2, 0.2, 1), uvBW);
-  // console.log('box: ', new BoxBufferGeometry(0.2, 0.2, 1));
+  const box = new THREE.Mesh(new THREE.BoxBufferGeometry(0.2, 0.2, 1), uvBW);
+  // console.log('box: ', new THREE.BoxBufferGeometry(0.2, 0.2, 1));
   box.position.set(0.1, 0.1, 0);
 
-  const sphere = new Mesh(new SphereBufferGeometry(0.1), red);
+  const sphere = new THREE.Mesh(new THREE.SphereBufferGeometry(0.1), red);
   sphere.position.set(0, 0, -0.3);
 
   const sphereB = sphere.clone();
