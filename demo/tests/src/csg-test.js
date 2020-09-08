@@ -28,7 +28,7 @@ function testCSG(params) {
   const uvCol = new MeshStandardMaterial({ map: textureCol });
 
   const box = new Mesh(new BoxBufferGeometry(0.2, 0.2, 1), uvBW);
-  // console.log('box: ', new BoxBufferGeometry(0.2, 0.2, 1));
+
   box.position.set(0.1, 0.1, 0);
 
   const sphere = new Mesh(new SphereBufferGeometry(0.1), red);
@@ -39,8 +39,8 @@ function testCSG(params) {
 
   const csg = new CSG();
   // csg.union([box, sphere, sphereB]);
-  csg.subtract([box, sphere, sphereB]);
-  // csg.intersect([box, sphere]);
+  // csg.subtract([box, sphere, sphereB]);
+  csg.intersect([box, sphere]);
   console.log('csg: ', csg);
 
   return {

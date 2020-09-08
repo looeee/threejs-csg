@@ -64,6 +64,8 @@ function init() {
   // const test = new Mesh(results.test, material);
   // test.position.set(1, 0, 0);
 
+  // results.testMesh.material.side = DoubleSide;
+  // results.testMesh.material.wireframe = true;
   scene.add(
     // plane,
     // box,

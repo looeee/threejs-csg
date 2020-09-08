@@ -334,6 +334,9 @@ class CSG {
     const a = new BSPNode(this.polygons);
     const b = new BSPNode(operand.polygons);
 
+    const d = new BSPNode(this.clone().polygons);
+    const c = new BSPNode(operand.clone().polygons);
+
     a.invert();
     b.clipTo(a);
     b.invert();
@@ -341,7 +344,16 @@ class CSG {
     b.clipTo(a);
     a.build(b.allPolygons());
     a.invert();
-    this.polygons = a.allPolygons();
+
+    c.invert();
+    d.clipTo(c);
+    d.invert();
+    c.clipTo(d);
+    d.clipTo(c);
+    c.build(d.allPolygons());
+    c.invert();
+
+    this.polygons = c.allPolygons().concat(a.allPolygons());
   }
 
   // Switch solid and empty space
