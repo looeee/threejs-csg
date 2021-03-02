@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/looeee/threejs-csg#readme",
   "dependencies": {
-    "three": "^0.116.1"
+    "three": "^0.125.0"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^8.0.0",
