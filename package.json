@@ -38,7 +38,7 @@
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^8.0.0",
     "concurrently": "^5.2.0",
-    "eslint": "^7.1.0",
+    "eslint": "^7.23.0",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.3",
