@@ -27807,7 +27807,7 @@
 
   // src/demo/createCSGMeshes.js
   async function loadModel() {
-    const gltf = await new GLTFLoader().loadAsync("/assets/models/Duck.glb");
+    const gltf = await new GLTFLoader().loadAsync("/assets/models/quack.glb");
     const model = gltf.scene.getObjectByName("LOD3spShape");
     return [model];
   }
@@ -27888,7 +27888,6 @@
       renderer.render(scene, camera);
     });
     csgMeshes = await setupMeshes();
-    console.log("csgMeshes: ", csgMeshes);
     scene.add(csgMeshes);
     document.querySelector(".loading").style.display = "none";
     document.querySelector("header").style.height = "3rem";

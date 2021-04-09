@@ -37,7 +37,6 @@ async function init() {
   });
 
   csgMeshes = await setupMeshes();
-  console.log("csgMeshes: ", csgMeshes);
   scene.add(csgMeshes);
 
   document.querySelector(".loading").style.display = "none";
