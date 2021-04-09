@@ -1,6 +1,6 @@
 # threejs-csg (Work in Progress)
 
-Constructive Solid Geometry for three.js, ES6 + BufferGeometry
+Constructive Solid Geometry for three.js, ES6 + BufferGeometry.
 
 # Developing
 
@@ -13,7 +13,6 @@ http://127.0.0.1:8080/demo/tests/index.html
 
 ```
 const box = new Mesh(new BoxBufferGeometry(0.2, 0.2, 1), material);
-// console.log('box: ', new BoxBufferGeometry(0.2, 0.2, 1));
 box.position.set(0.1, 0.1, 0);
 
 const sphere = new Mesh(new SphereBufferGeometry(0.1), material);
@@ -24,12 +23,8 @@ sphereB.position.set(0, 0, 0.3);
 
 const csg = new CSG();
 
-csg.setFromMesh(box);
-csg.union([sphere, sphereB]);
-=> equivalent to (if no mesh is set, the first mesh in the array is used)
-csg.union([box, sphere, sphereB]);
-
-// csg.subtract([box, sphere, sphereB]);
+csg.subtract([box, sphere, sphereB]);
+// csg.union([box, sphere, sphereB]);
 // csg.intersect([box, sphere]);
 
 const resultMesh = csg.toMesh();
