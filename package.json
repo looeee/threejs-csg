@@ -4,12 +4,6 @@
   "description": "Constructive Solid Geometry for three.js, ES6 + BufferGeometry",
   "main": "build/CSG.js",
   "modules": "build/CSG.js",
-  "scripts": {
-    "build": "rollup -c",
-    "server": "http-server -c-1 -p 8080 --cors",
-    "watch-js": "rollup -c -w -m inline",
-    "start": "concurrently --names \"ROLLUP,HTTP\" -c \"bgBlue.bold,bgGreen.bold\" \"npm run watch-js\" \"npm run server\""
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/looeee/threejs-csg.git"
@@ -32,59 +26,19 @@
     "url": "https://github.com/looeee/threejs-csg/issues"
   },
   "homepage": "https://github.com/looeee/threejs-csg#readme",
-  "dependencies": {
-    "three": "^0.127.0"
+  "scripts": {
+    "start": "concurrently --names \"ESBUILD,HTTP\" -c \"bgBlue.bold,bgGreen.bold\" \"npm run serve\" \"npm run watch\"",
+    "serve": "servez -p 8080",
+    "watch": "node watch.mjs"
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^11.2.1",
     "concurrently": "^6.0.0",
-    "eslint": "^7.23.0",
-    "eslint-config-airbnb": "^18.2.1",
-    "eslint-config-prettier": "^8.1.0",
-    "eslint-plugin-prettier": "^3.3.1",
-    "http-server": "^0.12.3",
-    "prettier": "^2.2.1",
-    "rollup": "^2.44.0"
+    "esbuild": "^0.11.5",
+    "esbuild-glslify": "github:ayamflow/esbuild-glslify",
+    "servez": "^1.11.0"
   },
-  "eslintConfig": {
-    "extends": [
-      "airbnb",
-      "prettier"
-    ],
-    "env": {
-      "browser": true
-    },
-    "plugins": [
-      "prettier"
-    ],
-    "rules": {
-      "prettier/prettier": [
-        "error"
-      ],
-      "class-methods-use-this": 0,
-      "import/extensions": 0,
-      "import/prefer-default-export": 0,
-      "no-console": 0,
-      "no-plusplus": 0,
-      "prefer-destructuring": 0,
-      "no-restricted-syntax": [
-        "error",
-        "ForInStatement",
-        "LabeledStatement",
-        "WithStatement"
-      ],
-      "no-param-reassign": [
-        "error",
-        {
-          "props": false
-        }
-      ]
-    }
-  },
-  "prettier": {
-    "semi": true,
-    "trailingComma": "all",
-    "singleQuote": true,
-    "printWidth": 70
+  "dependencies": {
+    "postprocessing": "^6.21.3",
+    "three": "^0.126.1"
   }
 }
