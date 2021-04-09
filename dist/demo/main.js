@@ -27807,7 +27807,7 @@
 
   // src/demo/createCSGMeshes.js
   async function loadModel() {
-    const gltf = await new GLTFLoader().loadAsync("/assets/models/duck.glb");
+    const gltf = await new GLTFLoader().loadAsync("/assets/models/Duck.glb");
     const model = gltf.scene.getObjectByName("LOD3spShape");
     return [model];
   }
