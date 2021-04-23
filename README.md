@@ -34,7 +34,7 @@ const resultMesh = csg.toMesh();
 
 * Only the material from the first mesh is used.
 * Vertex colors are ignored.
-* Very slow
+* Make it faster!! 
 
 # Prior Work
 
