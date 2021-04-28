@@ -1,0 +1,10 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: monthly
+  ignore:
+  - dependency-name: "@rollup/plugin-node-resolve"
+    versions:
+    - 11.2.1
