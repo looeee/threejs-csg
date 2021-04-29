@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "concurrently": "^6.0.0",
-    "esbuild": "^0.11.5",
+    "esbuild": "^0.11.16",
     "esbuild-glslify": "github:ayamflow/esbuild-glslify",
     "servez": "^1.11.0"
   },
