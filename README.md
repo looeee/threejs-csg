@@ -1,7 +1,10 @@
-# threejs-csg (Work in Progress)
+# threejs-csg (Experimental)
 
 Constructive Solid Geometry for three.js, ES6 + BufferGeometry.
 
+Note: I have stopped working on this for now and there are bugs, although it should work for simple shapes. 
+If you need a more complete library that works with BufferGeometry try [SebiTimeWaster /
+three-csg](https://github.com/SebiTimeWaster/three-csg).
 # Developing
 
 Run `npm install` then `npm start`
