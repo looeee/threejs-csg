@@ -32,7 +32,7 @@
     "watch": "node watch.mjs"
   },
   "devDependencies": {
-    "concurrently": "^6.2.0",
+    "concurrently": "^6.2.1",
     "esbuild": "^0.12.13",
     "esbuild-glslify": "github:ayamflow/esbuild-glslify",
     "servez": "^1.11.0"
