@@ -35,7 +35,7 @@
     "concurrently": "^6.3.0",
     "esbuild": "^0.13.12",
     "esbuild-glslify": "github:ayamflow/esbuild-glslify",
-    "servez": "^1.12.0"
+    "servez": "^1.12.1"
   },
   "dependencies": {
     "postprocessing": "^6.23.2",
