@@ -38,7 +38,7 @@
     "servez": "^1.12.0"
   },
   "dependencies": {
-    "postprocessing": "^6.23.2",
+    "postprocessing": "^6.27.0",
     "three": "^0.134.0"
   }
 }
